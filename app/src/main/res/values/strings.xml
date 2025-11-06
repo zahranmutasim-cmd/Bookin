@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Bookin</string>
+    <string name="create_account_link"><u>Create new account</u></string>
+    <string name="forgot_password_link"><u>Lupa Password</u></string>
+</resources>

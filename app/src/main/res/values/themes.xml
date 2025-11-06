@@ -1,0 +1,9 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Bookin" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/bookin_blue_primary</item>
+    </style>
+
+    <style name="Theme.Bookin" parent="Base.Theme.Bookin" />
+</resources>
