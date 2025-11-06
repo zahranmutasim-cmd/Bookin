@@ -9,7 +9,7 @@
         android:id="@+id/splash_logo"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        app:srcCompat="@drawable/bookin_logo_putih"
+        app:srcCompat="@drawable/logo_bookin_putih"
         android:layout_centerInParent="true"/>
 
     <TextView
