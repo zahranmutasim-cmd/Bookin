@@ -29,7 +29,7 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Selamat Datang di Bookin!"
+            android:text="Selamat Datang di Kontol!"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@android:color/black"
