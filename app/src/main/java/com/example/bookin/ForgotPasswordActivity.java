@@ -1,6 +1,5 @@
 package com.example.bookin;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -15,8 +14,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         Button backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ForgotPasswordActivity.this, MainActivity.class);
-            startActivity(intent);
+            finish(); // Closes the current activity and returns to the previous one
         });
     }
 }

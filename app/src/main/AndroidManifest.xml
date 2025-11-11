@@ -26,6 +26,22 @@
         <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
+        <activity
+            android:name=".HomeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
+            android:name=".ChatActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
+            android:name=".AdsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
     </application>
 
 </manifest>

@@ -2,4 +2,11 @@
 <resources>
     <color name="colorPrimary">#0142AF</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="gray_light">#F5F5F5</color>
+    <color name="gray_medium">#B3B3B3</color>
+    <color name="gray_dark">#666666</color>
+    <color name="black">#000000</color>
+    <color name="yellow">#FFD700</color>
+    <color name="blue_light">#E3F2FD</color>
+    <color name="navbar_bg">#0142AF</color>
 </resources>
