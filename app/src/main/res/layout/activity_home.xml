@@ -84,7 +84,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@android:drawable/ic_menu_search"
-                            android:tint="@color/gray_medium" />
+                            app:tint="@color/gray_medium" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -109,7 +109,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@android:drawable/ic_menu_mylocation"
-                        android:tint="@color/white" />
+                        app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"

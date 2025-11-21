@@ -8,6 +8,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Bookin">
+
+        <!-- Splash Screen (LAUNCHER) -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -17,15 +19,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Login Page (not the launcher anymore) -->
         <activity
             android:name=".MainActivity"
             android:exported="false" />
+
+        <!-- Activities that were missing -->
         <activity
             android:name=".CreateAccountActivity"
             android:exported="false" />
         <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
+
+        <!-- Other Activities -->
         <activity
             android:name=".HomeActivity"
             android:exported="false"
