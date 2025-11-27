@@ -19,8 +19,8 @@ public class SplashActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Start the Login Activity (MainActivity)
-                Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
+                // Start the Introduction Activity
+                Intent mainIntent = new Intent(SplashActivity.this, IntroductionActivity.class);
                 startActivity(mainIntent);
                 finish(); // Close the splash activity
             }

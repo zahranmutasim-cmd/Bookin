@@ -20,12 +20,30 @@
             </intent-filter>
         </activity>
 
-        <!-- Login Page (not the launcher anymore) -->
+        <!-- Introduction Page 1 -->
+        <activity
+            android:name=".IntroductionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+
+        <!-- Introduction Page 2 -->
+        <activity
+            android:name=".Introduction2Activity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+
+        <!-- Introduction Page 3 -->
+        <activity
+            android:name=".Introduction3Activity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+
+
+        <!-- Login Page -->
         <activity
             android:name=".MainActivity"
             android:exported="false" />
 
-        <!-- Activities that were missing -->
         <activity
             android:name=".CreateAccountActivity"
             android:exported="false" />
@@ -33,7 +51,6 @@
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
 
-        <!-- Other Activities -->
         <activity
             android:name=".HomeActivity"
             android:exported="false"

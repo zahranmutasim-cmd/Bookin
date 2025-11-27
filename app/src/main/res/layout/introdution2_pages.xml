@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary">
 
-    <!-- "Welcome!" Title -->
+    <!-- "Experience!" Title -->
     <TextView
-        android:id="@+id/book_now_title"
+        android:id="@+id/experience_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
-        android:text="Welcome!"
+        android:text="Experience!"
         android:textColor="@android:color/white"
         android:textSize="48sp"
         android:textStyle="bold"
@@ -22,35 +22,50 @@
 
     <!-- Phone Mockup Image -->
     <ImageView
-        android:id="@+id/phone_image"
+        android:id="@+id/phone_image_2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="-40dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/mockup_hp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal_center"
+        android:src="@drawable/mockup_hp2"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal_center_2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/book_now_title"
+        app:layout_constraintTop_toBottomOf="@+id/experience_title"
         app:layout_constraintWidth_percent="0.7" />
+
+    <!-- Left Arrow -->
+    <TextView
+        android:id="@+id/arrow_left_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="&lt;"
+        android:textColor="@android:color/white"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="@+id/phone_image_2"
+        app:layout_constraintBottom_toBottomOf="@+id/phone_image_2"
+        app:layout_constraintEnd_toStartOf="@+id/phone_image_2"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Right Arrow -->
     <TextView
-        android:id="@+id/arrow_right"
+        android:id="@+id/arrow_right_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=">"
         android:textColor="@android:color/white"
         android:textSize="48sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="@+id/phone_image"
-        app:layout_constraintBottom_toBottomOf="@+id/phone_image"
-        app:layout_constraintStart_toEndOf="@+id/phone_image"
+        app:layout_constraintTop_toTopOf="@+id/phone_image_2"
+        app:layout_constraintBottom_toBottomOf="@+id/phone_image_2"
+        app:layout_constraintStart_toEndOf="@+id/phone_image_2"
         app:layout_constraintEnd_toEndOf="parent" />
+
 
     <!-- Guideline to position the bottom content -->
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_horizontal_center"
+        android:id="@+id/guideline_horizontal_center_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -58,78 +73,64 @@
 
     <!-- White Background PNG -->
     <ImageView
-        android:id="@+id/bottom_background"
+        android:id="@+id/bottom_background_2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:scaleType="fitXY"
         android:src="@drawable/bg_putih"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="@id/guideline_horizontal_center" />
+        app:layout_constraintTop_toTopOf="@id/guideline_horizontal_center_2" />
 
     <!-- Bottom Text Section -->
     <LinearLayout
-        android:id="@+id/title_layout"
+        android:id="@+id/title_layout_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="80dp"
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/guideline_horizontal_center">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="The World Of "
-                android:textColor="@android:color/black"
-                android:textSize="22sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Book"
-                android:textColor="@color/colorPrimary"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+        app:layout_constraintTop_toTopOf="@id/guideline_horizontal_center_2">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Buying and Selling"
+            android:text="Discover New"
+            android:textColor="@android:color/black"
+            android:textSize="22sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Experiences With BOOKin"
             android:textColor="@color/colorPrimary"
             android:textSize="22sp"
             android:textStyle="bold" />
     </LinearLayout>
 
     <TextView
-        android:id="@+id/description_text"
+        android:id="@+id/description_text_2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="40dp"
         android:lineSpacingExtra="4dp"
-        android:text="Mulai Langkah Pertama Anda Untuk Menjual dan Membeli Buku dengan Mudah!"
+        android:text="Satu platform untuk semua kebutuhan buku Anda. Jual lebih mudah, beli lebih cepat, dan nikmati pengalaman membaca tanpa batas!"
         android:textAlignment="center"
         android:textColor="@android:color/darker_gray"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_layout" />
+        app:layout_constraintTop_toBottomOf="@+id/title_layout_2" />
 
     <!-- Page Indicators -->
     <LinearLayout
-        android:id="@+id/dots_layout"
+        android:id="@+id/dots_layout_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="28dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -137,16 +138,16 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <View
-            android:layout_width="20dp"
-            android:layout_height="10dp"
-            android:layout_margin="4dp"
-            android:background="@drawable/indicator_active" />
-
-        <View
             android:layout_width="10dp"
             android:layout_height="10dp"
             android:layout_margin="4dp"
             android:background="@drawable/indicator_inactive" />
+
+        <View
+            android:layout_width="20dp"
+            android:layout_height="10dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/indicator_active" />
 
         <View
             android:layout_width="10dp"
