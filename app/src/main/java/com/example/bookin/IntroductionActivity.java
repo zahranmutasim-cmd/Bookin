@@ -22,6 +22,7 @@ public class IntroductionActivity extends AppCompatActivity {
                 // Navigate to the second introduction page
                 Intent intent = new Intent(IntroductionActivity.this, Introduction2Activity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 finish(); // Close this activity so the user can't go back
             }
         });

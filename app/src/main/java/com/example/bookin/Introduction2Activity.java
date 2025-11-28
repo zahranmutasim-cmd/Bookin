@@ -24,6 +24,7 @@ public class Introduction2Activity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(Introduction2Activity.this, IntroductionActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 finish();
             }
         });
@@ -34,6 +35,7 @@ public class Introduction2Activity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(Introduction2Activity.this, Introduction3Activity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 finish();
             }
         });
