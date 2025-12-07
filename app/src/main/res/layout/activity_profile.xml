@@ -18,6 +18,15 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/logout_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Logout"
+            app:backgroundTint="@color/colorPrimary" />
+
     </LinearLayout>
 
     <androidx.cardview.widget.CardView
@@ -171,5 +180,3 @@
     </androidx.cardview.widget.CardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-

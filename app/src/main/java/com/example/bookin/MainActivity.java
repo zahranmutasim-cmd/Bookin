@@ -3,7 +3,9 @@ package com.example.bookin;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -11,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.google.android.gms.auth.api.identity.GetSignInIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private ActivityResultLauncher<IntentSenderRequest> googleSignInLauncher;
+    private CardView loadingIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.login_page);
 
         mAuth = FirebaseAuth.getInstance();
+        loadingIndicator = findViewById(R.id.loading_indicator);
 
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -56,8 +61,10 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+            showLoading();
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
+                        hideLoading();
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithEmail:success");
                             navigateToHome();
@@ -74,11 +81,13 @@ public class MainActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartIntentSenderForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
+                        showLoading();
                         try {
                             SignInCredential credential = Identity.getSignInClient(this).getSignInCredentialFromIntent(result.getData());
                             AuthCredential googleAuthCredential = GoogleAuthProvider.getCredential(credential.getGoogleIdToken(), null);
                             mAuth.signInWithCredential(googleAuthCredential)
                                     .addOnCompleteListener(this, task -> {
+                                        hideLoading();
                                         if (task.isSuccessful()) {
                                             Log.d(TAG, "signInWithGoogle:success");
                                             navigateToHome();
@@ -89,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     });
                         } catch (ApiException e) {
+                            hideLoading();
                             Log.w(TAG, "Google sign in failed", e);
                         }
                     }
@@ -96,15 +106,18 @@ public class MainActivity extends AppCompatActivity {
 
         MaterialButton googleSignInButton = findViewById(R.id.google_sign_up_button);
         googleSignInButton.setOnClickListener(v -> {
+            showLoading();
             GetSignInIntentRequest request = GetSignInIntentRequest.builder()
                     .setServerClientId(getString(R.string.default_web_client_id))
                     .build();
 
             Identity.getSignInClient(this).getSignInIntent(request)
                     .addOnSuccessListener(result -> {
+                        hideLoading();
                         googleSignInLauncher.launch(new IntentSenderRequest.Builder(result.getIntentSender()).build());
                     })
                     .addOnFailureListener(e -> {
+                        hideLoading();
                         Log.e(TAG, "Google Sign-In failed to launch", e);
                     });
         });
@@ -126,5 +139,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void showLoading() {
+        loadingIndicator.setVisibility(View.VISIBLE);
+    }
+
+    private void hideLoading() {
+        loadingIndicator.setVisibility(View.GONE);
     }
 }

@@ -1,12 +1,18 @@
 package com.example.bookin;
 
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
@@ -27,17 +33,16 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             String email = emailEditText.getText().toString();
 
             if (email.isEmpty()) {
-                Toast.makeText(ForgotPasswordActivity.this, "Masukkan Email anda.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ForgotPasswordActivity.this, "Please enter your email", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             mAuth.sendPasswordResetEmail(email)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Toast.makeText(ForgotPasswordActivity.this, "Email reset password telah dikirim.", Toast.LENGTH_SHORT).show();
-                            finish();
+                            showSuccessDialog();
                         } else {
-                            Toast.makeText(ForgotPasswordActivity.this, "Email reset password gagal dikirim.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ForgotPasswordActivity.this, "Failed to send reset email", Toast.LENGTH_SHORT).show();
                         }
                     });
         });
@@ -46,5 +51,26 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         backButton.setOnClickListener(v -> {
             finish(); // Closes the current activity and returns to the previous one
         });
+    }
+
+    private void showSuccessDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_success);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        TextView dialogTitle = dialog.findViewById(R.id.dialog_title);
+        dialogTitle.setText("Email Terkirim!");
+
+        TextView dialogMessage = dialog.findViewById(R.id.dialog_message);
+        dialogMessage.setText("Silakan periksa email Anda (termasuk folder spam) untuk mengatur ulang kata sandi Anda.");
+
+        MaterialButton dialogButton = dialog.findViewById(R.id.dialog_button);
+        dialogButton.setOnClickListener(v -> {
+            dialog.dismiss();
+            finish();
+        });
+
+        dialog.show();
     }
 }

@@ -1,10 +1,14 @@
 package com.example.bookin;
 
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +20,21 @@ public class HomeActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         setupBottomNavigationBar();
+
+        TextView greetingText = findViewById(R.id.greeting_text);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String displayName = user.getDisplayName();
+            if (displayName != null && !displayName.isEmpty()) {
+                greetingText.setText("Hai, " + displayName + "!");
+            } else {
+                String email = user.getEmail();
+                if (email != null && !email.isEmpty()) {
+                    greetingText.setText("Hai, " + email.split("@")[0] + "!");
+                }
+            }
+        }
 
         // Setup Category RecyclerView
         RecyclerView categoryRecyclerView = findViewById(R.id.category_recycler_view);
