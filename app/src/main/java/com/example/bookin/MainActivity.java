@@ -2,36 +2,111 @@ package com.example.bookin;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.auth.api.identity.GetSignInIntentRequest;
+import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.auth.api.identity.SignInCredential;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+
+    private FirebaseAuth mAuth;
+    private ActivityResultLauncher<IntentSenderRequest> googleSignInLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.login_page);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        mAuth = FirebaseAuth.getInstance();
 
-        // Sign In Button - Navigate to HomeActivity
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            navigateToHome();
+        }
+
+        EditText emailEditText = findViewById(R.id.email_edit_text);
+        EditText passwordEditText = findViewById(R.id.password_edit_text);
+
+        // Email/Password Sign-In
         MaterialButton signInButton = findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-            startActivity(intent);
-            finish(); // Optional: close login page after signing in
+            String email = emailEditText.getText().toString();
+            String password = passwordEditText.getText().toString();
+
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(MainActivity.this, "Email and password cannot be empty", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "signInWithEmail:success");
+                            navigateToHome();
+                        } else {
+                            Log.w(TAG, "signInWithEmail:failure", task.getException());
+                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
+
+        // Google Sign-In
+        googleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartIntentSenderForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        try {
+                            SignInCredential credential = Identity.getSignInClient(this).getSignInCredentialFromIntent(result.getData());
+                            AuthCredential googleAuthCredential = GoogleAuthProvider.getCredential(credential.getGoogleIdToken(), null);
+                            mAuth.signInWithCredential(googleAuthCredential)
+                                    .addOnCompleteListener(this, task -> {
+                                        if (task.isSuccessful()) {
+                                            Log.d(TAG, "signInWithGoogle:success");
+                                            navigateToHome();
+                                        } else {
+                                            Log.w(TAG, "signInWithGoogle:failure", task.getException());
+                                            Toast.makeText(MainActivity.this, "Google Sign-In failed.",
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        } catch (ApiException e) {
+                            Log.w(TAG, "Google sign in failed", e);
+                        }
+                    }
+                });
+
+        MaterialButton googleSignInButton = findViewById(R.id.google_sign_up_button);
+        googleSignInButton.setOnClickListener(v -> {
+            GetSignInIntentRequest request = GetSignInIntentRequest.builder()
+                    .setServerClientId(getString(R.string.default_web_client_id))
+                    .build();
+
+            Identity.getSignInClient(this).getSignInIntent(request)
+                    .addOnSuccessListener(result -> {
+                        googleSignInLauncher.launch(new IntentSenderRequest.Builder(result.getIntentSender()).build());
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Google Sign-In failed to launch", e);
+                    });
         });
 
         TextView createAccount = findViewById(R.id.create_account);
@@ -45,5 +120,11 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ForgotPasswordActivity.class);
             startActivity(intent);
         });
+    }
+
+    private void navigateToHome() {
+        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
