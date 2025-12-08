@@ -1,12 +1,14 @@
 package com.example.bookin;
 
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -22,9 +24,11 @@ public class HomeActivity extends BaseActivity {
         setupBottomNavigationBar();
 
         TextView greetingText = findViewById(R.id.greeting_text);
+        ImageView profilePicture = findViewById(R.id.profile_picture);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
+            // Set Greeting
             String displayName = user.getDisplayName();
             if (displayName != null && !displayName.isEmpty()) {
                 greetingText.setText("Hai, " + displayName + "!");
@@ -34,15 +38,29 @@ public class HomeActivity extends BaseActivity {
                     greetingText.setText("Hai, " + email.split("@")[0] + "!");
                 }
             }
+
+            // Set Profile Picture
+            if (user.getPhotoUrl() != null) {
+                Glide.with(this).load(user.getPhotoUrl()).into(profilePicture);
+            }
         }
 
         // Setup Category RecyclerView
+        setupCategoryRecyclerView();
+
+        // Setup Book RecyclerViews
+        setupBookRecyclerView(R.id.popular_recycler_view, getSampleBookData());
+        setupBookRecyclerView(R.id.latest_recycler_view, getSampleBookData());
+        setupBookRecyclerView(R.id.nearby_recycler_view, getSampleBookData());
+    }
+
+    private void setupCategoryRecyclerView() {
         RecyclerView categoryRecyclerView = findViewById(R.id.category_recycler_view);
         categoryRecyclerView.setLayoutManager(new GridLayoutManager(this, 5));
-
+        // This data can also be moved to Firestore if you wish
         List<Category> categoryList = new ArrayList<>();
         categoryList.add(new Category("Buku Gratis", R.drawable.buku_gratis_icon));
-        categoryList.add(new Category("Pelajaran", R.drawable.pelajaran_icon)); // Placeholder
+        categoryList.add(new Category("Pelajaran", R.drawable.pelajaran_icon));
         categoryList.add(new Category("Novel", R.drawable.novel_icon));
         categoryList.add(new Category("Comic", R.drawable.comic_icon));
         categoryList.add(new Category("Buku Cerita", R.drawable.buku_cerita_icon));
@@ -51,14 +69,8 @@ public class HomeActivity extends BaseActivity {
         categoryList.add(new Category("Majalah", R.drawable.majalah_icon));
         categoryList.add(new Category("Keuangan", R.drawable.keuangan_icon));
         categoryList.add(new Category("Self Improvment", R.drawable.self_improvement));
-
         CategoryAdapter categoryAdapter = new CategoryAdapter(categoryList);
         categoryRecyclerView.setAdapter(categoryAdapter);
-
-        // Setup Book RecyclerViews
-        setupBookRecyclerView(R.id.popular_recycler_view, getSampleBookData());
-        setupBookRecyclerView(R.id.latest_recycler_view, getSampleBookData());
-        setupBookRecyclerView(R.id.nearby_recycler_view, getSampleBookData());
     }
 
     private void setupBookRecyclerView(int recyclerViewId, List<Book> bookList) {

@@ -1,5 +1,6 @@
 package com.example.bookin;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,20 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         holder.price.setText(book.getPrice());
         holder.location.setText(book.getLocation());
         holder.cover.setImageResource(book.getImageResource());
+
+        // Set the initial star color
+        if (book.isFavorited()) {
+            holder.favoriteIcon.setColorFilter(Color.YELLOW);
+        } else {
+            holder.favoriteIcon.setColorFilter(Color.WHITE);
+        }
+
+        // Handle favorite icon clicks
+        holder.favoriteIcon.setOnClickListener(v -> {
+            boolean isCurrentlyFavorited = book.isFavorited();
+            book.setFavorited(!isCurrentlyFavorited);
+            notifyItemChanged(position);
+        });
     }
 
     @Override
@@ -43,7 +58,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
 
     static class BookViewHolder extends RecyclerView.ViewHolder {
         TextView title, description, price, location;
-        ImageView cover;
+        ImageView cover, favoriteIcon;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -52,6 +67,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             price = itemView.findViewById(R.id.book_price);
             location = itemView.findViewById(R.id.book_location);
             cover = itemView.findViewById(R.id.book_cover);
+            favoriteIcon = itemView.findViewById(R.id.favorite_icon);
         }
     }
 }
