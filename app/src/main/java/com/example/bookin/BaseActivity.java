@@ -17,6 +17,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void setupBottomNavigationBar() {
         LinearLayout homeButton = findViewById(R.id.nav_home);
         LinearLayout chatButton = findViewById(R.id.nav_chat);
+        LinearLayout addButton = findViewById(R.id.nav_add);
         LinearLayout adsButton = findViewById(R.id.nav_ads);
         LinearLayout profileButton = findViewById(R.id.nav_profile);
 
@@ -30,6 +31,11 @@ public class BaseActivity extends AppCompatActivity {
             if (!(this instanceof ChatActivity)) {
                 startActivity(new Intent(this, ChatActivity.class));
             }
+        });
+
+        addButton.setOnClickListener(v -> {
+            // Always start a new PostAdActivity, removing the problematic instanceof check
+            startActivity(new Intent(this, PostAdActivity.class));
         });
 
         adsButton.setOnClickListener(v -> {
