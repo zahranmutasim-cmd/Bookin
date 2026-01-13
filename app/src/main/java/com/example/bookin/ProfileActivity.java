@@ -1,6 +1,7 @@
 package com.example.bookin;
 
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
@@ -39,6 +41,7 @@ public class ProfileActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         setupBottomNavigationBar();
@@ -48,6 +51,13 @@ public class ProfileActivity extends BaseActivity {
         TextView usernameTextView = findViewById(R.id.profile_username);
         TextView emailTextView = findViewById(R.id.profile_email);
         MaterialButton logoutButton = findViewById(R.id.logout_button);
+
+        // Change the color of the profile icon
+        ImageView profileIcon = findViewById(R.id.nav_profile_icon);
+        if (profileIcon != null) {
+            profileIcon.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+        }
+
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
