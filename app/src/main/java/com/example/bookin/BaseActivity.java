@@ -24,29 +24,33 @@ public class BaseActivity extends AppCompatActivity {
         homeButton.setOnClickListener(v -> {
             if (!(this instanceof HomeActivity)) {
                 startActivity(new Intent(this, HomeActivity.class));
+                overridePendingTransition(0, 0);
             }
         });
 
         chatButton.setOnClickListener(v -> {
             if (!(this instanceof ChatActivity)) {
                 startActivity(new Intent(this, ChatActivity.class));
+                overridePendingTransition(0, 0);
             }
         });
 
         addButton.setOnClickListener(v -> {
-            // Always start a new PostAdActivity, removing the problematic instanceof check
             startActivity(new Intent(this, PostAdActivity.class));
+            overridePendingTransition(0, 0);
         });
 
         adsButton.setOnClickListener(v -> {
             if (!(this instanceof AdsActivity)) {
                 startActivity(new Intent(this, AdsActivity.class));
+                overridePendingTransition(0, 0);
             }
         });
 
         profileButton.setOnClickListener(v -> {
             if (!(this instanceof ProfileActivity)) {
                 startActivity(new Intent(this, ProfileActivity.class));
+                overridePendingTransition(0, 0);
             }
         });
     }
