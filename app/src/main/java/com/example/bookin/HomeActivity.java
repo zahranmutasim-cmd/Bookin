@@ -2,6 +2,8 @@ package com.example.bookin;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,23 +19,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class HomeActivity extends BaseActivity implements OnMapReadyCallback {
+public class HomeActivity extends BaseActivity {
 
-    private MapView mapView;
-    private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
+    private TextView locationText;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     @Override
@@ -44,14 +41,9 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback {
 
         TextView greetingText = findViewById(R.id.greeting_text);
         ImageView profilePicture = findViewById(R.id.profile_picture);
-
-        // MapView initialization
-        mapView = findViewById(R.id.mapView);
-        mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
+        locationText = findViewById(R.id.location_text);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -79,6 +71,9 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback {
         setupBookRecyclerView(R.id.popular_recycler_view, getSampleBookData());
         setupBookRecyclerView(R.id.latest_recycler_view, getSampleBookData());
         setupBookRecyclerView(R.id.nearby_recycler_view, getSampleBookData());
+
+        // Get and display location
+        fetchLocation();
     }
 
     private void setupCategoryRecyclerView() {
@@ -116,96 +111,45 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback {
         return bookList;
     }
 
-    @Override
-    public void onMapReady(@NonNull GoogleMap map) {
-        googleMap = map;
-        enableMyLocation();
-    }
-
-    private void enableMyLocation() {
+    private void fetchLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            if (googleMap != null) {
-                googleMap.setMyLocationEnabled(true);
-                fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-                    if (location != null) {
-                        LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                        googleMap.addMarker(new MarkerOptions().position(currentLocation).title("You are here"));
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
-                    } else {
-                        // Default to Palembang if location not found
-                        LatLng palembang = new LatLng(-2.976074, 104.775429);
-                        googleMap.addMarker(new MarkerOptions().position(palembang).title("Palembang"));
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(palembang, 12));
-                        Toast.makeText(this, "Could not get current location, showing Palembang.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        } else {
-            // Permission to access the location is missing. Request it.
+                != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, location -> {
+                        if (location != null) {
+                            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+                            try {
+                                List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                                if (addresses != null && !addresses.isEmpty()) {
+                                    String address = addresses.get(0).getSubLocality();
+                                    String city = addresses.get(0).getLocality();
+                                    locationText.setText(address + ", " + city);
+                                } else {
+                                    locationText.setText("Lokasi tidak ditemukan");
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                locationText.setText("Layanan lokasi tidak tersedia");
+                            }
+                        } else {
+                            locationText.setText("Gagal mendapatkan lokasi");
+                        }
+                    });
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission was granted.
-                enableMyLocation();
+                fetchLocation();
             } else {
-                // Permission was denied. Display a toast.
-                Toast.makeText(this, "Location permission is required to show the map.", Toast.LENGTH_SHORT).show();
-                 // Default to Palembang
-                LatLng palembang = new LatLng(-2.976074, 104.775429);
-                if (googleMap != null) {
-                    googleMap.addMarker(new MarkerOptions().position(palembang).title("Palembang"));
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(palembang, 12));
-                }
+                Toast.makeText(this, "Izin lokasi ditolak", Toast.LENGTH_SHORT).show();
+                locationText.setText("Izin lokasi ditolak");
             }
-        }
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (mapView != null) {
-            mapView.onResume();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mapView != null) {
-            mapView.onPause();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mapView != null) {
-            mapView.onDestroy();
-        }
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        if (mapView != null) {
-            mapView.onLowMemory();
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (mapView != null) {
-            mapView.onSaveInstanceState(outState);
         }
     }
 }
