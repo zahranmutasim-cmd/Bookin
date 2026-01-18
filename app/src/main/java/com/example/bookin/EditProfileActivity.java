@@ -93,7 +93,7 @@ public class EditProfileActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     String bio = snapshot.child("bio").getValue(String.class);
-                    String phone = snapshot.child("phoneNumber").getValue(String.class);
+                    String phone = snapshot.child("phone").getValue(String.class);
 
                     if (bio != null) {
                         binding.bioInput.setText(bio);
@@ -137,7 +137,7 @@ public class EditProfileActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 // Save bio and phone to Realtime Database
                 userRef.child("bio").setValue(bio);
-                userRef.child("phoneNumber").setValue(phone).addOnCompleteListener(dbTask -> {
+                userRef.child("phone").setValue(phone).addOnCompleteListener(dbTask -> {
                     binding.saveButton.setEnabled(true);
                     binding.saveButton.setText("Simpan");
 

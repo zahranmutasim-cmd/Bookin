@@ -8,6 +8,8 @@ public class Book {
     private String type;
     private String condition;
     private String location;
+    private double latitude;
+    private double longitude;
     private String frontImageUrl;
     private String backImageUrl;
     private String userId;
@@ -18,13 +20,17 @@ public class Book {
     private long timestamp;
     private boolean isFeatured;
     private String categoryName;
+    private int reportCount;
+    private double totalRating;
+    private int ratingCount;
 
     // Default constructor required for Firebase
     public Book() {
     }
 
     public Book(String id, String title, String description, long price, String type,
-            String condition, String location, String frontImageUrl, String backImageUrl,
+            String condition, String location, double latitude, double longitude,
+            String frontImageUrl, String backImageUrl,
             String userId, String userName, String userPhone, String userEmail,
             String userProfileImage, long timestamp, boolean isFeatured, String categoryName) {
         this.id = id;
@@ -34,6 +40,8 @@ public class Book {
         this.type = type;
         this.condition = condition;
         this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.frontImageUrl = frontImageUrl;
         this.backImageUrl = backImageUrl;
         this.userId = userId;
@@ -101,6 +109,22 @@ public class Book {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
     public String getFrontImageUrl() {
@@ -181,5 +205,35 @@ public class Book {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public int getReportCount() {
+        return reportCount;
+    }
+
+    public void setReportCount(int reportCount) {
+        this.reportCount = reportCount;
+    }
+
+    public double getTotalRating() {
+        return totalRating;
+    }
+
+    public void setTotalRating(double totalRating) {
+        this.totalRating = totalRating;
+    }
+
+    public int getRatingCount() {
+        return ratingCount;
+    }
+
+    public void setRatingCount(int ratingCount) {
+        this.ratingCount = ratingCount;
+    }
+
+    public double getAverageRating() {
+        if (ratingCount == 0)
+            return 0;
+        return totalRating / ratingCount;
     }
 }

@@ -54,6 +54,10 @@ public class HomeActivity extends BaseActivity {
     private FirebaseBookAdapter latestAdapter, popularAdapter, nearbyAdapter, searchAdapter;
     private List<Book> latestBooks, popularBooks, nearbyBooks, searchResults, allBooks;
 
+    // User location for distance calculation
+    private double userLatitude = 0;
+    private double userLongitude = 0;
+
     // Views for search mode
     private View searchResultsSection;
     private RecyclerView searchRecyclerView;
@@ -327,20 +331,34 @@ public class HomeActivity extends BaseActivity {
             }
         });
 
-        // Fetch nearby books (for now, just fetch all - can be filtered by location
-        // later)
-        Query nearbyQuery = booksRef.limitToLast(10);
-        nearbyQuery.addValueEventListener(new ValueEventListener() {
+        // Fetch nearby books - sorted by distance to user
+        booksRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 nearbyBooks.clear();
+                List<Book> allBooksWithLocation = new ArrayList<>();
+
                 for (DataSnapshot bookSnapshot : snapshot.getChildren()) {
                     Book book = bookSnapshot.getValue(Book.class);
-                    if (book != null) {
-                        nearbyBooks.add(book);
+                    if (book != null && book.getLatitude() != 0 && book.getLongitude() != 0) {
+                        allBooksWithLocation.add(book);
                     }
                 }
-                Collections.reverse(nearbyBooks);
+
+                // Sort by distance if user location is available
+                if (userLatitude != 0 && userLongitude != 0) {
+                    Collections.sort(allBooksWithLocation, (b1, b2) -> {
+                        double dist1 = calculateDistance(userLatitude, userLongitude, b1.getLatitude(),
+                                b1.getLongitude());
+                        double dist2 = calculateDistance(userLatitude, userLongitude, b2.getLatitude(),
+                                b2.getLongitude());
+                        return Double.compare(dist1, dist2);
+                    });
+                }
+
+                // Take top 10 nearest
+                int limit = Math.min(10, allBooksWithLocation.size());
+                nearbyBooks.addAll(allBooksWithLocation.subList(0, limit));
                 nearbyAdapter.updateBooks(nearbyBooks);
             }
 
@@ -403,6 +421,13 @@ public class HomeActivity extends BaseActivity {
 
                                     locationText.setText(locationString);
 
+                                    // Store user coordinates for distance calculation
+                                    userLatitude = location.getLatitude();
+                                    userLongitude = location.getLongitude();
+
+                                    // Refresh nearby books with new location
+                                    fetchNearbyBooks();
+
                                     // Save location to Firebase for current user
                                     FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                                     if (currentUser != null) {
@@ -449,5 +474,62 @@ public class HomeActivity extends BaseActivity {
                 locationText.setText("Izin lokasi ditolak");
             }
         }
+    }
+
+    /**
+     * Calculate distance between two coordinates using Haversine formula
+     * 
+     * @return distance in kilometers
+     */
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        final double R = 6371; // Earth's radius in kilometers
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                        * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c;
+    }
+
+    private void fetchNearbyBooks() {
+        booksRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                nearbyBooks.clear();
+                List<Book> allBooksWithLocation = new ArrayList<>();
+
+                for (DataSnapshot bookSnapshot : snapshot.getChildren()) {
+                    Book book = bookSnapshot.getValue(Book.class);
+                    if (book != null && book.getLatitude() != 0 && book.getLongitude() != 0) {
+                        allBooksWithLocation.add(book);
+                    }
+                }
+
+                // Sort by distance
+                if (userLatitude != 0 && userLongitude != 0) {
+                    Collections.sort(allBooksWithLocation, (b1, b2) -> {
+                        double dist1 = calculateDistance(userLatitude, userLongitude, b1.getLatitude(),
+                                b1.getLongitude());
+                        double dist2 = calculateDistance(userLatitude, userLongitude, b2.getLatitude(),
+                                b2.getLongitude());
+                        return Double.compare(dist1, dist2);
+                    });
+                }
+
+                int limit = Math.min(10, allBooksWithLocation.size());
+                nearbyBooks.addAll(allBooksWithLocation.subList(0, limit));
+                nearbyAdapter.updateBooks(nearbyBooks);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Silent fail
+            }
+        });
     }
 }

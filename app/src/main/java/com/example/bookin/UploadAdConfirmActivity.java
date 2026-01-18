@@ -3,6 +3,7 @@ package com.example.bookin;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -26,12 +27,15 @@ public class UploadAdConfirmActivity extends AppCompatActivity {
     public static final String EXTRA_SELECTED_TYPE = "extra_selected_type";
     public static final String EXTRA_CONDITION = "extra_condition";
     public static final String EXTRA_LOCATION = "extra_location";
+    public static final String EXTRA_LATITUDE = "extra_latitude";
+    public static final String EXTRA_LONGITUDE = "extra_longitude";
     public static final String EXTRA_TITLE = "extra_title";
     public static final String EXTRA_DESCRIPTION = "extra_description";
     public static final String EXTRA_PRICE = "extra_price";
 
     private String categoryName, frontImageUrl, backImageUrl, selectedType;
     private String condition, location, title, description;
+    private double latitude, longitude;
     private long price;
 
     private TextView userNameTv, userPhoneTv, userEmailTv;
@@ -61,6 +65,8 @@ public class UploadAdConfirmActivity extends AppCompatActivity {
         selectedType = getIntent().getStringExtra(EXTRA_SELECTED_TYPE);
         condition = getIntent().getStringExtra(EXTRA_CONDITION);
         location = getIntent().getStringExtra(EXTRA_LOCATION);
+        latitude = getIntent().getDoubleExtra(EXTRA_LATITUDE, 0);
+        longitude = getIntent().getDoubleExtra(EXTRA_LONGITUDE, 0);
         title = getIntent().getStringExtra(EXTRA_TITLE);
         description = getIntent().getStringExtra(EXTRA_DESCRIPTION);
         price = getIntent().getLongExtra(EXTRA_PRICE, 0);
@@ -102,16 +108,29 @@ public class UploadAdConfirmActivity extends AppCompatActivity {
             userId = currentUser.getUid();
             userName = currentUser.getDisplayName();
             userEmail = currentUser.getEmail();
-            userPhone = currentUser.getPhoneNumber();
             userProfileImageUrl = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
 
+            // Display basic info
             userNameTv.setText(userName != null && !userName.isEmpty() ? userName : "Pengguna");
             userEmailTv.setText(userEmail != null && !userEmail.isEmpty() ? userEmail : "-");
-            userPhoneTv.setText(userPhone != null && !userPhone.isEmpty() ? userPhone : "-");
 
+            // Load profile image
             if (userProfileImageUrl != null && !userProfileImageUrl.isEmpty()) {
                 Glide.with(this).load(userProfileImageUrl).into(userProfileImage);
             }
+
+            // Fetch phone number from Realtime Database
+            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
+            usersRef.child(userId).child("phone").get().addOnSuccessListener(snapshot -> {
+                if (snapshot.exists()) {
+                    userPhone = snapshot.getValue(String.class);
+                    userPhoneTv.setText(userPhone != null && !userPhone.isEmpty() ? userPhone : "-");
+                } else {
+                    userPhoneTv.setText("-");
+                }
+            }).addOnFailureListener(e -> {
+                userPhoneTv.setText("-");
+            });
         }
     }
 
@@ -155,6 +174,8 @@ public class UploadAdConfirmActivity extends AppCompatActivity {
                 selectedType,
                 condition,
                 location,
+                latitude,
+                longitude,
                 frontImageUrl,
                 backImageUrl,
                 userId,
@@ -170,6 +191,11 @@ public class UploadAdConfirmActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     progressDialog.dismiss();
                     Toast.makeText(UploadAdConfirmActivity.this, "Iklan berhasil diunggah!", Toast.LENGTH_SHORT).show();
+
+                    // Navigate back to PostAdActivity and clear the upload stack
+                    Intent intent = new Intent(UploadAdConfirmActivity.this, PostAdActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                     finish();
                 })
                 .addOnFailureListener(e -> {

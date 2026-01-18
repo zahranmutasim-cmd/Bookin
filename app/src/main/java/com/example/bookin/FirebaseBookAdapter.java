@@ -1,6 +1,7 @@
 package com.example.bookin;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -16,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.bookin.models.Book;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.text.NumberFormat;
 import java.util.HashSet;
@@ -26,13 +29,13 @@ import java.util.Set;
 public class FirebaseBookAdapter extends RecyclerView.Adapter<FirebaseBookAdapter.BookViewHolder> {
 
     private static final String WISHLIST_PREFS = "wishlist_prefs";
-    private static final String WISHLIST_KEY = "wishlist_items";
 
     private List<Book> bookList;
     private Context context;
     private OnBookClickListener listener;
     private SharedPreferences sharedPreferences;
     private Set<String> wishlistIds;
+    private String currentUserId;
 
     public interface OnBookClickListener {
         void onBookClick(Book book);
@@ -52,16 +55,30 @@ public class FirebaseBookAdapter extends RecyclerView.Adapter<FirebaseBookAdapte
         notifyDataSetChanged();
     }
 
+    private String getWishlistKey() {
+        // Return user-specific wishlist key
+        if (currentUserId != null && !currentUserId.isEmpty()) {
+            return "wishlist_" + currentUserId;
+        }
+        return "wishlist_anonymous";
+    }
+
     private void loadWishlist() {
         if (sharedPreferences == null)
             return;
-        wishlistIds = new HashSet<>(sharedPreferences.getStringSet(WISHLIST_KEY, new HashSet<>()));
+
+        // Get current user ID
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        currentUserId = user != null ? user.getUid() : null;
+
+        // Load user-specific wishlist
+        wishlistIds = new HashSet<>(sharedPreferences.getStringSet(getWishlistKey(), new HashSet<>()));
     }
 
     private void saveWishlist() {
         if (sharedPreferences == null)
             return;
-        sharedPreferences.edit().putStringSet(WISHLIST_KEY, wishlistIds).apply();
+        sharedPreferences.edit().putStringSet(getWishlistKey(), wishlistIds).apply();
     }
 
     private boolean isInWishlist(String bookId) {
@@ -144,10 +161,15 @@ public class FirebaseBookAdapter extends RecyclerView.Adapter<FirebaseBookAdapte
             }
         });
 
-        // Handle item click
+        // Handle item click - navigate to BookDetailActivity
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onBookClick(book);
+            } else {
+                // Default: open BookDetailActivity
+                Intent intent = new Intent(context, BookDetailActivity.class);
+                intent.putExtra(BookDetailActivity.EXTRA_BOOK_ID, book.getId());
+                context.startActivity(intent);
             }
         });
     }

@@ -176,10 +176,14 @@
                         android:orientation="vertical">
 
                         <LinearLayout
+                            android:id="@+id/wishlist_item"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:padding="16dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackground"
                             android:gravity="center_vertical">
 
                             <ImageView

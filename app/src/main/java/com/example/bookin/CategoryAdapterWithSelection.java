@@ -7,31 +7,31 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
 /**
- * CategoryAdapter for displaying categories without selection state.
- * Used in HomeActivity and other places where selection is not needed.
+ * CategoryAdapter specifically for upload ad details with selection state.
+ * This adapter maintains selection state for the upload flow only.
  */
-public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
+public class CategoryAdapterWithSelection
+        extends RecyclerView.Adapter<CategoryAdapterWithSelection.CategoryViewHolder> {
 
     private final List<Category> categoryList;
     private final OnCategoryClickListener listener;
+    private int selectedPosition = -1;
 
     public interface OnCategoryClickListener {
         void onCategoryClick(Category category);
     }
 
-    public CategoryAdapter(List<Category> categoryList, OnCategoryClickListener listener) {
+    public CategoryAdapterWithSelection(List<Category> categoryList, OnCategoryClickListener listener) {
         this.categoryList = categoryList;
         this.listener = listener;
     }
 
-    // Constructor for when no click listener is needed
-    public CategoryAdapter(List<Category> categoryList) {
+    public CategoryAdapterWithSelection(List<Category> categoryList) {
         this(categoryList, null);
     }
 
@@ -48,10 +48,22 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         holder.name.setText(category.getName());
         holder.icon.setImageResource(category.getIconResource());
 
-        // No selection state - always full opacity
-        holder.itemView.setAlpha(1.0f);
+        // Highlight selected item - only for this adapter instance
+        if (position == selectedPosition) {
+            holder.itemView.setSelected(true);
+            holder.itemView.setAlpha(1.0f);
+        } else {
+            holder.itemView.setSelected(false);
+            holder.itemView.setAlpha(0.6f);
+        }
 
         holder.itemView.setOnClickListener(v -> {
+            int previousPosition = selectedPosition;
+            selectedPosition = holder.getAdapterPosition();
+
+            notifyItemChanged(previousPosition);
+            notifyItemChanged(selectedPosition);
+
             if (listener != null) {
                 listener.onCategoryClick(category);
             }
@@ -61,6 +73,13 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     @Override
     public int getItemCount() {
         return categoryList.size();
+    }
+
+    public String getSelectedCategory() {
+        if (selectedPosition >= 0 && selectedPosition < categoryList.size()) {
+            return categoryList.get(selectedPosition).getName();
+        }
+        return null;
     }
 
     static class CategoryViewHolder extends RecyclerView.ViewHolder {

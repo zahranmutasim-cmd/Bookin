@@ -36,6 +36,8 @@ public class UploadAdDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_SELECTED_TYPE = "extra_selected_type";
     public static final String EXTRA_CONDITION = "extra_condition";
     public static final String EXTRA_LOCATION = "extra_location";
+    public static final String EXTRA_LATITUDE = "extra_latitude";
+    public static final String EXTRA_LONGITUDE = "extra_longitude";
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
 
@@ -43,7 +45,9 @@ public class UploadAdDetailsActivity extends AppCompatActivity {
     private String frontImageUrl;
     private String backImageUrl;
     private String currentLocation = "";
-    private CategoryAdapter categoryAdapter;
+    private double currentLatitude = 0;
+    private double currentLongitude = 0;
+    private CategoryAdapterWithSelection categoryAdapter;
 
     private FusedLocationProviderClient fusedLocationClient;
     private TextView lokasiText;
@@ -112,6 +116,8 @@ public class UploadAdDetailsActivity extends AppCompatActivity {
             intent.putExtra(UploadAdFinalActivity.EXTRA_SELECTED_TYPE, selectedType);
             intent.putExtra(UploadAdFinalActivity.EXTRA_CONDITION, condition);
             intent.putExtra(UploadAdFinalActivity.EXTRA_LOCATION, currentLocation);
+            intent.putExtra(UploadAdFinalActivity.EXTRA_LATITUDE, currentLatitude);
+            intent.putExtra(UploadAdFinalActivity.EXTRA_LONGITUDE, currentLongitude);
             startActivity(intent);
         });
 
@@ -127,7 +133,7 @@ public class UploadAdDetailsActivity extends AppCompatActivity {
         categoryList.add(new Category("Cerita", R.drawable.buku_cerita_icon));
         categoryList.add(new Category("Buku Gratis", R.drawable.buku_gratis_icon));
 
-        categoryAdapter = new CategoryAdapter(categoryList);
+        categoryAdapter = new CategoryAdapterWithSelection(categoryList);
         tipeRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         tipeRecyclerView.setAdapter(categoryAdapter);
     }
@@ -168,10 +174,14 @@ public class UploadAdDetailsActivity extends AppCompatActivity {
                                     }
 
                                     currentLocation = locationBuilder.toString();
+                                    currentLatitude = location.getLatitude();
+                                    currentLongitude = location.getLongitude();
                                     lokasiText.setText(currentLocation);
                                 } else {
                                     lokasiText.setText("Lokasi tidak ditemukan");
                                     currentLocation = "";
+                                    currentLatitude = 0;
+                                    currentLongitude = 0;
                                 }
                             } catch (IOException e) {
                                 e.printStackTrace();

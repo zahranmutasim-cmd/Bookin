@@ -85,7 +85,49 @@ public class ProfileActivity extends BaseActivity {
             }
         });
 
+        binding.wishlistItem.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, WishlistActivity.class);
+            startActivity(intent);
+        });
+
+        binding.logoutButton.setOnClickListener(v -> showLogoutConfirmDialog());
+
         fetchLocation();
+    }
+
+    private void showLogoutConfirmDialog() {
+        // Create dialog
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_logout_confirm, null);
+        builder.setView(dialogView);
+
+        android.app.AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        // Set up buttons
+        com.google.android.material.button.MaterialButton cancelButton = dialogView.findViewById(R.id.cancel_button);
+        com.google.android.material.button.MaterialButton logoutButton = dialogView
+                .findViewById(R.id.logout_button_confirm);
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        logoutButton.setOnClickListener(v -> {
+            dialog.dismiss();
+
+            // Sign out from Firebase
+            FirebaseAuth.getInstance().signOut();
+
+            // Clear any local data if needed
+            Toast.makeText(ProfileActivity.this, "Berhasil keluar", Toast.LENGTH_SHORT).show();
+
+            // Redirect to login page
+            Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+
+        dialog.show();
     }
 
     private void loadUserProfile() {

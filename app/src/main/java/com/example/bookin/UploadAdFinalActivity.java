@@ -19,8 +19,11 @@ public class UploadAdFinalActivity extends AppCompatActivity {
     public static final String EXTRA_SELECTED_TYPE = "extra_selected_type";
     public static final String EXTRA_CONDITION = "extra_condition";
     public static final String EXTRA_LOCATION = "extra_location";
+    public static final String EXTRA_LATITUDE = "extra_latitude";
+    public static final String EXTRA_LONGITUDE = "extra_longitude";
 
     private String categoryName, frontImageUrl, backImageUrl, selectedType, condition, location;
+    private double latitude, longitude;
     private EditText titleInput, descriptionInput, priceInput;
     private View priceInputLayout, gratisInfoCard;
 
@@ -36,6 +39,8 @@ public class UploadAdFinalActivity extends AppCompatActivity {
         selectedType = getIntent().getStringExtra(EXTRA_SELECTED_TYPE);
         condition = getIntent().getStringExtra(EXTRA_CONDITION);
         location = getIntent().getStringExtra(EXTRA_LOCATION);
+        latitude = getIntent().getDoubleExtra(EXTRA_LATITUDE, 0);
+        longitude = getIntent().getDoubleExtra(EXTRA_LONGITUDE, 0);
 
         // Initialize views
         TextView headerTitle = findViewById(R.id.header_title);
@@ -99,6 +104,8 @@ public class UploadAdFinalActivity extends AppCompatActivity {
             intent.putExtra(UploadAdConfirmActivity.EXTRA_SELECTED_TYPE, selectedType);
             intent.putExtra(UploadAdConfirmActivity.EXTRA_CONDITION, condition);
             intent.putExtra(UploadAdConfirmActivity.EXTRA_LOCATION, location);
+            intent.putExtra(UploadAdConfirmActivity.EXTRA_LATITUDE, latitude);
+            intent.putExtra(UploadAdConfirmActivity.EXTRA_LONGITUDE, longitude);
             intent.putExtra(UploadAdConfirmActivity.EXTRA_TITLE, title);
             intent.putExtra(UploadAdConfirmActivity.EXTRA_DESCRIPTION, description);
             intent.putExtra(UploadAdConfirmActivity.EXTRA_PRICE, price);
