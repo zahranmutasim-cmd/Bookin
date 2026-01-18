@@ -33,7 +33,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             String email = emailEditText.getText().toString();
 
             if (email.isEmpty()) {
-                Toast.makeText(ForgotPasswordActivity.this, "Please enter your email", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ForgotPasswordActivity.this, "Silakan masukkan email Anda", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -42,7 +42,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             showSuccessDialog();
                         } else {
-                            Toast.makeText(ForgotPasswordActivity.this, "Failed to send reset email", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ForgotPasswordActivity.this, "Gagal mengirim email pengaturan ulang", Toast.LENGTH_SHORT).show();
                         }
                     });
         });

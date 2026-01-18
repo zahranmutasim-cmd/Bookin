@@ -33,18 +33,18 @@
             android:padding="8dp">
 
             <ImageView
+                android:id="@+id/nav_home_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                app:srcCompat="@drawable/home_icon"
-                app:tint="@color/colorPrimary" />
+                app:srcCompat="@drawable/home_icon" />
 
             <TextView
+                android:id="@+id/nav_home_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Home"
-                android:textColor="@color/colorPrimary"
-                android:textStyle="bold"
+                android:textColor="@color/gray_medium"
                 android:textSize="10sp" />
         </LinearLayout>
 
@@ -59,11 +59,13 @@
             android:padding="8dp">
 
             <ImageView
+                android:id="@+id/nav_chat_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/chat_icon" />
 
             <TextView
+                android:id="@+id/nav_chat_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
@@ -76,33 +78,26 @@
         <LinearLayout
             android:id="@+id/nav_add"
             android:layout_width="0dp"
-            android:layout_height="82dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:clipChildren="false"
-            android:clipToPadding="false"
             android:gravity="center"
-            android:orientation="vertical"
-            android:padding="8dp">
+            android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="-16dp"
-                android:clipChildren="false"
-                android:clipToPadding="false"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
                 app:cardBackgroundColor="@color/colorPrimary"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="28dp"
                 app:cardElevation="4dp">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:layout_gravity="center"
                     android:adjustViewBounds="true"
                     android:scaleType="centerInside"
                     app:srcCompat="@drawable/plus_icon" />
             </androidx.cardview.widget.CardView>
-
         </LinearLayout>
 
         <!-- Iklan Saya -->
@@ -116,11 +111,13 @@
             android:padding="8dp">
 
             <ImageView
+                android:id="@+id/nav_ads_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/iklan_icon" />
 
             <TextView
+                android:id="@+id/nav_ads_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
@@ -140,11 +137,13 @@
             android:padding="8dp">
 
             <ImageView
+                android:id="@+id/nav_profile_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/profile_icon" />
 
             <TextView
+                android:id="@+id/nav_profile_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"

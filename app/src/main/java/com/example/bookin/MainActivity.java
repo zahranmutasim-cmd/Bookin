@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,12 +23,15 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
     private FirebaseAuth mAuth;
+    private DatabaseReference usersRef;
     private ActivityResultLauncher<IntentSenderRequest> googleSignInLauncher;
     private CardView loadingIndicator;
 
@@ -39,11 +41,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.login_page);
 
         mAuth = FirebaseAuth.getInstance();
+        usersRef = FirebaseDatabase.getInstance().getReference("users");
         loadingIndicator = findViewById(R.id.loading_indicator);
 
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
+            updateLastLoginTime(currentUser.getUid());
             navigateToHome();
         }
 
@@ -57,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             String password = passwordEditText.getText().toString();
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Email and password cannot be empty", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Email dan kata sandi tidak boleh kosong", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -67,10 +71,14 @@ public class MainActivity extends AppCompatActivity {
                         hideLoading();
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user != null) {
+                                updateLastLoginTime(user.getUid());
+                            }
                             navigateToHome();
                         } else {
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                            Toast.makeText(MainActivity.this, "Autentikasi gagal.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -83,17 +91,24 @@ public class MainActivity extends AppCompatActivity {
                     if (result.getResultCode() == RESULT_OK) {
                         showLoading();
                         try {
-                            SignInCredential credential = Identity.getSignInClient(this).getSignInCredentialFromIntent(result.getData());
-                            AuthCredential googleAuthCredential = GoogleAuthProvider.getCredential(credential.getGoogleIdToken(), null);
+                            SignInCredential credential = Identity.getSignInClient(this)
+                                    .getSignInCredentialFromIntent(result.getData());
+                            AuthCredential googleAuthCredential = GoogleAuthProvider
+                                    .getCredential(credential.getGoogleIdToken(), null);
                             mAuth.signInWithCredential(googleAuthCredential)
                                     .addOnCompleteListener(this, task -> {
                                         hideLoading();
                                         if (task.isSuccessful()) {
                                             Log.d(TAG, "signInWithGoogle:success");
+                                            FirebaseUser user = mAuth.getCurrentUser();
+                                            if (user != null) {
+                                                // For Google sign-in, also create/update user in database
+                                                createOrUpdateGoogleUser(user);
+                                            }
                                             navigateToHome();
                                         } else {
                                             Log.w(TAG, "signInWithGoogle:failure", task.getException());
-                                            Toast.makeText(MainActivity.this, "Google Sign-In failed.",
+                                            Toast.makeText(MainActivity.this, "Gagal masuk dengan Google.",
                                                     Toast.LENGTH_SHORT).show();
                                         }
                                     });
@@ -133,6 +148,31 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ForgotPasswordActivity.class);
             startActivity(intent);
         });
+    }
+
+    private void updateLastLoginTime(String userId) {
+        usersRef.child(userId).child("lastLoginAt").setValue(System.currentTimeMillis());
+    }
+
+    private void createOrUpdateGoogleUser(FirebaseUser user) {
+        long currentTime = System.currentTimeMillis();
+
+        // Update basic info for Google users
+        usersRef.child(user.getUid()).child("name").setValue(user.getDisplayName());
+        usersRef.child(user.getUid()).child("email").setValue(user.getEmail());
+        usersRef.child(user.getUid()).child("lastLoginAt").setValue(currentTime);
+
+        // Set createdAt only if it doesn't exist (first time login)
+        usersRef.child(user.getUid()).child("createdAt").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult().getValue() == null) {
+                usersRef.child(user.getUid()).child("createdAt").setValue(currentTime);
+            }
+        });
+
+        // Set profile image from Google if available
+        if (user.getPhotoUrl() != null) {
+            usersRef.child(user.getUid()).child("profileImage").setValue(user.getPhotoUrl().toString());
+        }
     }
 
     private void navigateToHome() {

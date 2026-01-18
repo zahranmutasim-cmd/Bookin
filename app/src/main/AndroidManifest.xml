@@ -14,10 +14,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Bookin">
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_API_KEY" />
-
         <!-- Splash Screen (LAUNCHER) -->
         <activity
             android:name=".SplashActivity"
@@ -77,6 +73,18 @@
             android:exported="false"
             android:theme="@style/Theme.Bookin.NoActionBar" />
         <activity
+            android:name=".UploadAdDetailsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
+            android:name=".UploadAdFinalActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
+            android:name=".UploadAdConfirmActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
             android:name=".AdsActivity"
             android:exported="false"
             android:theme="@style/Theme.Bookin.NoActionBar" />
@@ -84,6 +92,29 @@
             android:name=".ProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
+            android:name=".HelpCenterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+
+        <activity
+            android:name="com.canhub.cropper.CropImageActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
 
 </manifest>

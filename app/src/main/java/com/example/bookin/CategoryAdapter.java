@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
     private final List<Category> categoryList;
     private final OnCategoryClickListener listener;
+    private int selectedPosition = -1;
 
     public interface OnCategoryClickListener {
         void onCategoryClick(Category category);
@@ -43,7 +45,22 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         holder.name.setText(category.getName());
         holder.icon.setImageResource(category.getIconResource());
 
+        // Highlight selected item
+        if (position == selectedPosition) {
+            holder.itemView.setSelected(true);
+            holder.itemView.setAlpha(1.0f);
+        } else {
+            holder.itemView.setSelected(false);
+            holder.itemView.setAlpha(0.6f);
+        }
+
         holder.itemView.setOnClickListener(v -> {
+            int previousPosition = selectedPosition;
+            selectedPosition = holder.getAdapterPosition();
+
+            notifyItemChanged(previousPosition);
+            notifyItemChanged(selectedPosition);
+
             if (listener != null) {
                 listener.onCategoryClick(category);
             }
@@ -53,6 +70,13 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     @Override
     public int getItemCount() {
         return categoryList.size();
+    }
+
+    public String getSelectedCategory() {
+        if (selectedPosition >= 0 && selectedPosition < categoryList.size()) {
+            return categoryList.get(selectedPosition).getName();
+        }
+        return null;
     }
 
     static class CategoryViewHolder extends RecyclerView.ViewHolder {

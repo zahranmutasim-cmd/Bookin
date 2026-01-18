@@ -37,6 +37,12 @@ android {
 }
 
 dependencies {
+    // Circle Image View
+    implementation(libs.circleimageview)
+
+    // Image Cropper
+    implementation("com.vanniktech:android-image-cropper:4.3.3")
+
     // Cloudinary
     implementation("com.cloudinary:cloudinary-android:3.1.2")
 
@@ -51,10 +57,12 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.2.0")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-database")
 
     // Testing
     testImplementation(libs.junit)
