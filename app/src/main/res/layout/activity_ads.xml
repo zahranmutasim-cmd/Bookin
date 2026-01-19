@@ -4,217 +4,104 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="#F5F5F5">
 
-    <!-- Scrollable area for main content -->
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
+        android:orientation="vertical"
         android:paddingBottom="70dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Header Section -->
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:text="IKLAN SAYA"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
-            <!-- Header Section -->
-            <TextView
-                android:id="@+id/title_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="16dp"
-                android:text="Iklan Saya"
-                android:textColor="@color/black"
-                android:textSize="36sp"
-                android:textStyle="bold" />
+        <!-- Content FrameLayout for Empty State and RecyclerView -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="20dp">
 
-            <!-- Tab buttons container -->
+            <!-- Empty State -->
             <LinearLayout
+                android:id="@+id/empty_state_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="16dp"
-                android:orientation="horizontal"
-                android:weightSum="2">
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:visibility="gone">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/iklan_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:paddingVertical="12dp"
-                    android:text="IKLAN"
-                    android:textColor="@android:color/white"
-                    app:backgroundTint="@color/colorPrimary"
-                    app:cornerRadius="12dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/favorit_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:paddingVertical="12dp"
-                    android:text="FAVORIT"
-                    android:textColor="@android:color/black"
-                    app:backgroundTint="#F0F0F0"
-                    app:cornerRadius="12dp" />
-            </LinearLayout>
-
-            <!-- User's Ad Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:strokeColor="#E0E0E0"
-                app:strokeWidth="1dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/ad_date_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="12dp"
-                        android:text="dari : 7 Nov 2025"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="12sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                <!-- Icon Container -->
+                <FrameLayout
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:background="@drawable/circle_background_light"
+                    android:padding="28dp">
 
                     <ImageView
-                        android:id="@+id/ad_book_image"
-                        android:layout_width="90dp"
-                        android:layout_height="110dp"
-                        android:layout_marginTop="12dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/bookin_logo_biru"
-                        app:layout_constraintStart_toStartOf="@+id/ad_date_text"
-                        app:layout_constraintTop_toBottomOf="@+id/ad_date_text"
-                        tools:srcCompat="@tools:sample/backgrounds/scenic" />
-
-                    <LinearLayout
-                        android:id="@+id/ad_stats_layout"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:orientation="vertical"
-                        app:layout_constraintBottom_toBottomOf="@+id/ad_book_image"
-                        app:layout_constraintStart_toEndOf="@+id/ad_book_image"
-                        app:layout_constraintTop_toTopOf="@+id/ad_book_image">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                app:srcCompat="@drawable/profile_icon"
-                                app:tint="@android:color/darker_gray" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="Dilihat"
-                                android:textColor="@android:color/darker_gray"
-                                android:textSize="14sp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                app:srcCompat="@drawable/chat_icon"
-                                app:tint="@android:color/darker_gray" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="Disukai"
-                                android:textColor="@android:color/darker_gray"
-                                android:textSize="14sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <View
-                        android:id="@+id/ad_divider"
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="16dp"
-                        android:background="#E0E0E0"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/ad_book_image" />
-
-                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="8dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/ad_divider">
+                        android:layout_height="match_parent"
+                        android:src="@drawable/book_icon"
+                        app:tint="@color/colorPrimary" />
+                </FrameLayout>
 
-                        <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="4dp"
-                            android:layout_weight="1"
-                            android:text="DIPUBLISH"
-                            android:textSize="10sp"
-                            app:backgroundTint="@color/colorPrimary"
-                            app:cornerRadius="20dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="Belum Ada Iklan"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-                        <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="4dp"
-                            android:layout_weight="1"
-                            android:text="BELUM TERJUAL"
-                            android:textSize="10sp"
-                            app:backgroundTint="@color/colorPrimary"
-                            app:cornerRadius="20dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4dp"
+                    android:text="Pengguna belum mengiklankan buku.\nMulai jual buku Anda sekarang!"
+                    android:textColor="@color/gray_medium"
+                    android:textSize="14sp" />
 
-                        <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="4dp"
-                            android:layout_weight="1"
-                            android:text="LIHAT IKLAN"
-                            android:textSize="10sp"
-                            app:backgroundTint="@color/colorPrimary"
-                            app:cornerRadius="20dp" />
-                    </LinearLayout>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_add_ad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:paddingHorizontal="32dp"
+                    android:text="Tambah Iklan"
+                    android:textColor="@color/white"
+                    app:backgroundTint="@color/colorPrimary"
+                    app:cornerRadius="24dp"
+                    app:icon="@drawable/add_icon"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/white" />
 
-        </LinearLayout>
-    </ScrollView>
+            </LinearLayout>
+
+            <!-- RecyclerView for Ads List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_my_ads"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="8dp"
+                android:paddingBottom="16dp"
+                tools:listitem="@layout/item_my_ad" />
+
+        </FrameLayout>
+
+    </LinearLayout>
 
     <include layout="@layout/bottom_navigation_bar" />
 

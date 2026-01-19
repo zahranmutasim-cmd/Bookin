@@ -26,14 +26,23 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatVi
     private List<ChatRoom> chatRooms;
     private Context context;
     private OnChatClickListener listener;
+    private OnMenuClickListener menuListener;
 
     public interface OnChatClickListener {
         void onChatClick(ChatRoom chatRoom);
     }
 
+    public interface OnMenuClickListener {
+        void onMenuClick(ChatRoom chatRoom, int position);
+    }
+
     public ChatListAdapter(List<ChatRoom> chatRooms, OnChatClickListener listener) {
         this.chatRooms = chatRooms;
         this.listener = listener;
+    }
+
+    public void setOnMenuClickListener(OnMenuClickListener menuListener) {
+        this.menuListener = menuListener;
     }
 
     @NonNull
@@ -75,10 +84,17 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatVi
             holder.profileImage.setImageResource(R.drawable.default_profile);
         }
         
-        // Click listener
+        // Click listener for item
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onChatClick(chatRoom);
+            }
+        });
+
+        // Click listener for menu button (3 dots)
+        holder.menuButton.setOnClickListener(v -> {
+            if (menuListener != null) {
+                menuListener.onMenuClick(chatRoom, holder.getAdapterPosition());
             }
         });
     }
@@ -91,6 +107,14 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatVi
     public void updateChatRooms(List<ChatRoom> newChatRooms) {
         this.chatRooms = newChatRooms;
         notifyDataSetChanged();
+    }
+
+    public void removeChatRoom(int position) {
+        if (position >= 0 && position < chatRooms.size()) {
+            chatRooms.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, chatRooms.size());
+        }
     }
 
     private String formatTimestamp(long timestamp) {

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="#F5F5F5">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,98 +12,103 @@
         android:orientation="vertical"
         android:paddingBottom="70dp">
 
-        <!-- Header -->
-        <LinearLayout
+        <!-- Header Modern -->
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="64dp"
             android:background="@color/colorPrimary"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Kotak Masuk"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Tab Layout (Semua only) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@color/white"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:elevation="4dp"
             android:paddingHorizontal="16dp">
 
-            <TextView
-                android:id="@+id/tab_semua"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Semua"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:paddingBottom="8dp"
-                android:background="@drawable/tab_indicator_active" />
+                android:layout_centerVertical="true"
+                android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:text="Membeli"
-                android:textColor="@color/gray_medium"
-                android:textSize="14sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pesan"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:text="Menjual"
-                android:textColor="@color/gray_medium"
-                android:textSize="14sp" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tv_chat_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Percakapan dengan pengguna lain"
+                    android:textColor="#E0E0E0"
+                    android:textSize="12sp"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
 
-        <!-- Divider -->
-        <View
+        </RelativeLayout>
+
+        <!-- Content Container -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/gray_light" />
+            android:layout_height="match_parent">
 
-        <!-- Empty State -->
-        <LinearLayout
-            android:id="@+id/empty_state_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/chat_icon"
-                android:alpha="0.3" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Anda belum memiliki pesan dengan penjual"
-                android:textColor="@color/gray_medium"
-                android:textSize="14sp"
+            <!-- Empty State - Modern Design -->
+            <LinearLayout
+                android:id="@+id/empty_state_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:gravity="center"
-                android:paddingHorizontal="32dp" />
-        </LinearLayout>
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:visibility="gone">
 
-        <!-- Chat List RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/chat_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false" />
+                <!-- Icon Container with Background -->
+                <FrameLayout
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:background="@drawable/circle_background_light"
+                    android:padding="24dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/chat_icon"
+                        android:layout_gravity="center"
+                        app:tint="@color/colorPrimary" />
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="Belum Ada Pesan"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Mulai percakapan dengan pengguna lain\nmelalui halaman detail buku"
+                    android:textColor="@color/gray_medium"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4dp" />
+
+            </LinearLayout>
+
+            <!-- Chat List RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/chat_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                tools:listitem="@layout/item_chat" />
+
+        </FrameLayout>
 
     </LinearLayout>
 

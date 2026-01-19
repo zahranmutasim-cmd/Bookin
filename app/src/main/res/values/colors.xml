@@ -9,4 +9,6 @@
     <color name="yellow">#FFD700</color>
     <color name="blue_light">#E3F2FD</color>
     <color name="navbar_bg">#0142AF</color>
+    <color name="green_sold">#22E52C</color>
+    <color name="red_not_sold">#FF3F33</color>
 </resources>

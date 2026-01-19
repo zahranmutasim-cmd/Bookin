@@ -23,6 +23,8 @@ public class Book {
     private int reportCount;
     private double totalRating;
     private int ratingCount;
+    private boolean isSold;
+    private int favoriteCount;
 
     // Default constructor required for Firebase
     public Book() {
@@ -235,5 +237,21 @@ public class Book {
         if (ratingCount == 0)
             return 0;
         return totalRating / ratingCount;
+    }
+
+    public boolean isSold() {
+        return isSold;
+    }
+
+    public void setSold(boolean sold) {
+        isSold = sold;
+    }
+
+    public int getFavoriteCount() {
+        return favoriteCount;
+    }
+
+    public void setFavoriteCount(int favoriteCount) {
+        this.favoriteCount = favoriteCount;
     }
 }

@@ -4,10 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import com.example.bookin.models.ChatRoom;
 import com.google.firebase.auth.FirebaseAuth;
@@ -61,6 +65,7 @@ public class ChatActivity extends BaseActivity {
 
         chatRooms = new ArrayList<>();
         adapter = new ChatListAdapter(chatRooms, this::openChatRoom);
+        adapter.setOnMenuClickListener(this::showChatMenuBottomSheet);
         
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         chatRecyclerView.setAdapter(adapter);
@@ -191,6 +196,67 @@ public class ChatActivity extends BaseActivity {
         intent.putExtra(ChatRoomActivity.EXTRA_BOOK_IMAGE, chatRoom.getBookImage());
         intent.putExtra(ChatRoomActivity.EXTRA_BOOK_PRICE, chatRoom.getBookPrice());
         startActivity(intent);
+    }
+
+    private void showChatMenuBottomSheet(ChatRoom chatRoom, int position) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_chat_menu, null);
+        bottomSheetDialog.setContentView(bottomSheetView);
+
+        // Hapus Chat button
+        bottomSheetView.findViewById(R.id.btn_delete_chat).setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            showDeleteConfirmation(chatRoom, position);
+        });
+
+        // Batalkan button
+        bottomSheetView.findViewById(R.id.btn_cancel).setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+        });
+
+        bottomSheetDialog.show();
+    }
+
+    private void showDeleteConfirmation(ChatRoom chatRoom, int position) {
+        new AlertDialog.Builder(this)
+            .setTitle("Hapus Chat")
+            .setMessage("Apakah Anda yakin ingin menghapus percakapan ini?")
+            .setPositiveButton("Hapus", (dialog, which) -> {
+                deleteChatRoom(chatRoom, position);
+            })
+            .setNegativeButton("Batal", null)
+            .show();
+    }
+
+    private void deleteChatRoom(ChatRoom chatRoom, int position) {
+        String chatRoomId = chatRoom.getChatRoomId();
+        String currentUserId = currentUser.getUid();
+        String otherUserId = chatRoom.getOtherUserId();
+
+        // Remove from userChats for current user
+        userChatsRef.child(chatRoomId).removeValue();
+
+        // Remove from userChats for other user
+        if (otherUserId != null) {
+            FirebaseDatabase.getInstance().getReference("userChats")
+                .child(otherUserId)
+                .child(chatRoomId)
+                .removeValue();
+        }
+
+        // Remove the chat room itself
+        chatRoomsRef.child(chatRoomId).removeValue()
+            .addOnSuccessListener(aVoid -> {
+                adapter.removeChatRoom(position);
+                Toast.makeText(this, "Chat berhasil dihapus", Toast.LENGTH_SHORT).show();
+                
+                if (chatRooms.isEmpty()) {
+                    showEmptyState();
+                }
+            })
+            .addOnFailureListener(e -> {
+                Toast.makeText(this, "Gagal menghapus chat", Toast.LENGTH_SHORT).show();
+            });
     }
 
     @Override
