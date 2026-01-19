@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:text="Laporkan Iklan"
+        android:text="Laporkan Penjual"
         android:textColor="@color/black"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -30,7 +30,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="8dp"
         android:gravity="center"
-        android:text="Apakah Anda yakin ingin melaporkan iklan ini?\nIklan akan dihapus jika mendapat banyak laporan."
+        android:text="Apakah Anda yakin ingin melaporkan penjual ini?\nAkun akan ditinjau admin jika mendapat banyak laporan."
         android:textColor="#666666"
         android:textSize="14sp" />
 

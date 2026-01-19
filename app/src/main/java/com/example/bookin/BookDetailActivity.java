@@ -224,6 +224,19 @@ public class BookDetailActivity extends AppCompatActivity {
             }
         });
 
+        // Seller info click - open SellerProfileActivity
+        View sellerSection = findViewById(R.id.view_profile_arrow);
+        View.OnClickListener sellerClickListener = v -> {
+            if (currentBook != null && currentBook.getUserId() != null) {
+                Intent intent = new Intent(BookDetailActivity.this, SellerProfileActivity.class);
+                intent.putExtra("seller_id", currentBook.getUserId());
+                startActivity(intent);
+            }
+        };
+        sellerProfileImage.setOnClickListener(sellerClickListener);
+        sellerName.setOnClickListener(sellerClickListener);
+        sellerSection.setOnClickListener(sellerClickListener);
+
         // ViewPager page change listener for indicators
         imageViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -386,15 +399,19 @@ public class BookDetailActivity extends AppCompatActivity {
             return;
         }
 
-        // Check if user already reported this ad
+        String sellerId = currentBook.getUserId();
+        if (sellerId == null || sellerId.equals(currentUserId)) {
+            Toast.makeText(this, "Tidak dapat melaporkan akun sendiri", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check if user already reported this AD (stored in books node)
         booksRef.child(bookId).child("reporters").child(currentUserId).get()
                 .addOnSuccessListener(snapshot -> {
-                    if (snapshot.exists()) {
-                        // User already reported - show already reported dialog
+                    if (snapshot.exists() && Boolean.TRUE.equals(snapshot.getValue(Boolean.class))) {
                         showAlreadyReportedDialog();
                     } else {
-                        // Show report confirmation dialog
-                        showReportConfirmDialog(currentUserId);
+                        showReportConfirmDialog(currentUserId, sellerId);
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -416,7 +433,7 @@ public class BookDetailActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showReportConfirmDialog(String userId) {
+    private void showReportConfirmDialog(String reporterId, String sellerId) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_report, null);
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
@@ -429,35 +446,66 @@ public class BookDetailActivity extends AppCompatActivity {
         dialogView.findViewById(R.id.cancel_button).setOnClickListener(v -> dialog.dismiss());
 
         dialogView.findViewById(R.id.report_confirm_button).setOnClickListener(v -> {
-            int newReportCount = currentBook.getReportCount() + 1;
+            // 1. Mark this user as having reported this AD
+            booksRef.child(bookId).child("reporters").child(reporterId).setValue(true);
 
-            // Save user ID to reporters list
-            booksRef.child(bookId).child("reporters").child(userId).setValue(true);
+            // 2. Get and increment ad report count
+            booksRef.child(bookId).child("reportCount").get()
+                    .addOnSuccessListener(snapshot -> {
+                        int adReportCount = 0;
+                        if (snapshot.exists()) {
+                            Long count = snapshot.getValue(Long.class);
+                            adReportCount = count != null ? count.intValue() : 0;
+                        }
+                        int newAdReportCount = adReportCount + 1;
+                        booksRef.child(bookId).child("reportCount").setValue(newAdReportCount);
 
-            if (newReportCount > 5) {
-                // Delete the ad if reports > 5
-                booksRef.child(bookId).removeValue()
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(this, "Iklan telah dihapus karena banyak laporan", Toast.LENGTH_LONG).show();
+                        // 3. Auto-delete ad if reports > 5
+                        if (newAdReportCount > 5) {
+                            booksRef.child(bookId).removeValue()
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(this, "Iklan telah dihapus karena banyak laporan",
+                                                Toast.LENGTH_LONG).show();
+                                        dialog.dismiss();
+                                        finish();
+                                    });
+                        } else {
                             dialog.dismiss();
-                            finish();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(this, "Gagal menghapus iklan", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                        });
-            } else {
-                booksRef.child(bookId).child("reportCount").setValue(newReportCount)
-                        .addOnSuccessListener(aVoid -> {
+                        }
+
+                        // 4. Also track on seller for flagging (separate from ad deletion)
+                        usersRef.child(sellerId).child("reportCount").get()
+                                .addOnSuccessListener(userSnapshot -> {
+                                    int userReportCount = 0;
+                                    if (userSnapshot.exists()) {
+                                        Long count = userSnapshot.getValue(Long.class);
+                                        userReportCount = count != null ? count.intValue() : 0;
+                                    }
+                                    int newUserReportCount = userReportCount + 1;
+                                    usersRef.child(sellerId).child("reportCount").setValue(newUserReportCount);
+
+                                    // Flag user for manual review if >= 5 reports
+                                    if (newUserReportCount >= 5) {
+                                        DatabaseReference flaggedRef = FirebaseDatabase.getInstance()
+                                                .getReference("flagged_users");
+                                        flaggedRef.child(sellerId).child("reportCount").setValue(newUserReportCount);
+                                        flaggedRef.child(sellerId).child("userName")
+                                                .setValue(currentBook.getUserName());
+                                        flaggedRef.child(sellerId).child("userEmail")
+                                                .setValue(currentBook.getUserEmail());
+                                        flaggedRef.child(sellerId).child("flaggedAt")
+                                                .setValue(System.currentTimeMillis());
+                                    }
+                                });
+
+                        if (newAdReportCount <= 5) {
                             Toast.makeText(this, "Laporan berhasil dikirim. Terima kasih!", Toast.LENGTH_SHORT).show();
-                            currentBook.setReportCount(newReportCount);
-                            dialog.dismiss();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(this, "Gagal mengirim laporan", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                        });
-            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Gagal mengirim laporan", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    });
         });
 
         dialog.show();
@@ -476,16 +524,20 @@ public class BookDetailActivity extends AppCompatActivity {
             return;
         }
 
-        // Check if user already rated this ad
-        booksRef.child(bookId).child("raters").child(currentUserId).get()
+        String sellerId = currentBook.getUserId();
+        if (sellerId == null || sellerId.equals(currentUserId)) {
+            Toast.makeText(this, "Tidak dapat memberikan rating untuk diri sendiri", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check if user already rated this seller
+        usersRef.child(sellerId).child("raters").child(currentUserId).get()
                 .addOnSuccessListener(snapshot -> {
-                    if (snapshot.exists()) {
-                        // User already rated - show their previous rating
+                    if (snapshot.exists() && snapshot.getValue() != null) {
                         Long previousRating = snapshot.getValue(Long.class);
                         showAlreadyRatedDialog(previousRating != null ? previousRating.intValue() : 0);
                     } else {
-                        // Show rating dialog
-                        showRatingInputDialog(currentUserId);
+                        showRatingInputDialog(currentUserId, sellerId);
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -504,9 +556,8 @@ public class BookDetailActivity extends AppCompatActivity {
         }
 
         TextView ratingText = dialogView.findViewById(R.id.your_rating_text);
-        ratingText.setText("Anda memberikan rating " + userRating + " bintang");
+        ratingText.setText("Anda memberikan rating " + userRating + " bintang untuk penjual ini");
 
-        // Show stars based on user's rating
         ImageView[] stars = new ImageView[5];
         stars[0] = dialogView.findViewById(R.id.star_1);
         stars[1] = dialogView.findViewById(R.id.star_2);
@@ -526,7 +577,7 @@ public class BookDetailActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showRatingInputDialog(String userId) {
+    private void showRatingInputDialog(String raterId, String sellerId) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_rating, null);
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
@@ -570,21 +621,34 @@ public class BookDetailActivity extends AppCompatActivity {
                 return;
             }
 
-            // Save user's rating to raters list
-            booksRef.child(bookId).child("raters").child(userId).setValue(selectedRating[0]);
+            // Save rater's rating to seller's raters list
+            usersRef.child(sellerId).child("raters").child(raterId).setValue(selectedRating[0]);
 
-            // Update total rating
-            double newTotalRating = currentBook.getTotalRating() + selectedRating[0];
-            int newRatingCount = currentBook.getRatingCount() + 1;
+            // Get current rating stats and update
+            usersRef.child(sellerId).get()
+                    .addOnSuccessListener(snapshot -> {
+                        double currentTotalRating = 0;
+                        int currentRatingCount = 0;
 
-            booksRef.child(bookId).child("totalRating").setValue(newTotalRating);
-            booksRef.child(bookId).child("ratingCount").setValue(newRatingCount)
-                    .addOnSuccessListener(aVoid -> {
+                        if (snapshot.child("totalRating").exists()) {
+                            Double total = snapshot.child("totalRating").getValue(Double.class);
+                            currentTotalRating = total != null ? total : 0;
+                        }
+                        if (snapshot.child("ratingCount").exists()) {
+                            Long count = snapshot.child("ratingCount").getValue(Long.class);
+                            currentRatingCount = count != null ? count.intValue() : 0;
+                        }
+
+                        double newTotalRating = currentTotalRating + selectedRating[0];
+                        int newRatingCount = currentRatingCount + 1;
+
+                        usersRef.child(sellerId).child("totalRating").setValue(newTotalRating);
+                        usersRef.child(sellerId).child("ratingCount").setValue(newRatingCount);
+
                         double avgRating = newTotalRating / newRatingCount;
-                        Toast.makeText(this, String.format("Rating %.1f bintang berhasil dikirim!", avgRating),
+                        Toast.makeText(this,
+                                String.format("Rating %.1f bintang untuk penjual berhasil dikirim!", avgRating),
                                 Toast.LENGTH_SHORT).show();
-                        currentBook.setTotalRating(newTotalRating);
-                        currentBook.setRatingCount(newRatingCount);
                         dialog.dismiss();
                     })
                     .addOnFailureListener(e -> {

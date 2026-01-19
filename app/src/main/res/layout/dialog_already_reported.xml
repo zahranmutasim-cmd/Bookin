@@ -30,7 +30,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="8dp"
         android:gravity="center"
-        android:text="Anda sudah melaporkan iklan ini sebelumnya.\nTerima kasih atas kontribusi Anda!"
+        android:text="Anda sudah melaporkan penjual ini sebelumnya.\nTerima kasih atas kontribusi Anda!"
         android:textColor="#666666"
         android:textSize="14sp" />
 

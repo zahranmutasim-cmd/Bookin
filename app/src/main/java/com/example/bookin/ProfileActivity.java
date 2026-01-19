@@ -74,17 +74,6 @@ public class ProfileActivity extends BaseActivity {
             startActivity(intent);
         });
 
-        binding.contactUsItem.setOnClickListener(v -> {
-            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-            emailIntent.setData(Uri.parse("mailto:bookin26@gmail.com"));
-            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bantuan Bookin");
-            try {
-                startActivity(Intent.createChooser(emailIntent, "Kirim Email"));
-            } catch (android.content.ActivityNotFoundException e) {
-                Toast.makeText(ProfileActivity.this, "Tidak ada aplikasi email terinstal", Toast.LENGTH_SHORT).show();
-            }
-        });
-
         binding.wishlistItem.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, WishlistActivity.class);
             startActivity(intent);
