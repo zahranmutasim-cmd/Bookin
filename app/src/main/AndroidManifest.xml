@@ -65,6 +65,10 @@
             android:exported="false"
             android:theme="@style/Theme.Bookin.NoActionBar" />
         <activity
+            android:name=".ChatRoomActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
             android:name=".PostAdActivity"
             android:exported="false"
             android:theme="@style/Theme.Bookin.NoActionBar" />

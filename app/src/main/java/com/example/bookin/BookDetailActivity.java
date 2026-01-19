@@ -158,13 +158,46 @@ public class BookDetailActivity extends AppCompatActivity {
             }
         });
 
-        // Send button (interface only for now)
+        // Send button - open chat with seller
         sendButton.setOnClickListener(v -> {
             String message = messageInput.getText().toString().trim();
-            if (!message.isEmpty()) {
-                Toast.makeText(this, "Fitur chat akan segera hadir!", Toast.LENGTH_SHORT).show();
-                messageInput.setText("");
+            if (message.isEmpty()) {
+                Toast.makeText(this, "Tulis pesan terlebih dahulu", Toast.LENGTH_SHORT).show();
+                return;
             }
+            
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null 
+                    ? FirebaseAuth.getInstance().getCurrentUser().getUid() 
+                    : null;
+            
+            if (currentUserId == null) {
+                Toast.makeText(this, "Silakan login terlebih dahulu", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            if (currentBook == null || currentBook.getUserId() == null) {
+                Toast.makeText(this, "Data penjual tidak tersedia", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            // Don't allow chatting with yourself
+            if (currentUserId.equals(currentBook.getUserId())) {
+                Toast.makeText(this, "Anda tidak bisa mengirim pesan ke diri sendiri", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            Intent chatIntent = new Intent(this, ChatRoomActivity.class);
+            chatIntent.putExtra(ChatRoomActivity.EXTRA_OTHER_USER_ID, currentBook.getUserId());
+            chatIntent.putExtra(ChatRoomActivity.EXTRA_OTHER_USER_NAME, currentBook.getUserName());
+            chatIntent.putExtra(ChatRoomActivity.EXTRA_OTHER_USER_IMAGE, currentBook.getUserProfileImage());
+            chatIntent.putExtra(ChatRoomActivity.EXTRA_BOOK_ID, bookId);
+            chatIntent.putExtra(ChatRoomActivity.EXTRA_BOOK_TITLE, currentBook.getTitle());
+            chatIntent.putExtra(ChatRoomActivity.EXTRA_BOOK_IMAGE, currentBook.getFrontImageUrl());
+            chatIntent.putExtra(ChatRoomActivity.EXTRA_BOOK_PRICE, currentBook.getPrice());
+            chatIntent.putExtra(ChatRoomActivity.EXTRA_INITIAL_MESSAGE, message);
+            chatIntent.putExtra(ChatRoomActivity.EXTRA_IS_NEW_CHAT, true);
+            startActivity(chatIntent);
+            messageInput.setText("");
         });
 
         // Action buttons
