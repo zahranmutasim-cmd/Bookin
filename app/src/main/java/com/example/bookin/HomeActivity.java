@@ -1,6 +1,7 @@
 package com.example.bookin;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -21,6 +22,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.bumptech.glide.Glide;
 import com.example.bookin.models.Book;
@@ -53,6 +56,15 @@ public class HomeActivity extends BaseActivity {
     private DatabaseReference usersRef;
     private FirebaseBookAdapter latestAdapter, popularAdapter, nearbyAdapter, searchAdapter;
     private List<Book> latestBooks, popularBooks, nearbyBooks, searchResults, allBooks;
+    private RecyclerView nearbyRecyclerView;
+
+    // Banner auto-change
+    private ImageView bannerImageView;
+    private Handler bannerHandler;
+    private Runnable bannerRunnable;
+    private int currentBannerIndex = 0;
+    private int[] bannerImages = { R.drawable.iklan, R.drawable.iklan2, R.drawable.iklan3, R.drawable.iklan4 };
+    private static final long BANNER_DELAY = 3500; // 3.5 seconds
 
     // User location for distance calculation
     private double userLatitude = 0;
@@ -108,6 +120,9 @@ public class HomeActivity extends BaseActivity {
 
         // Setup Category RecyclerView
         setupCategoryRecyclerView();
+
+        // Setup Banner Slider
+        setupBannerSlider();
 
         // Initialize book lists and adapters
         initializeBookRecyclerViews();
@@ -228,8 +243,43 @@ public class HomeActivity extends BaseActivity {
         categoryList.add(new Category("Majalah", R.drawable.majalah_icon));
         categoryList.add(new Category("Keuangan", R.drawable.keuangan_icon));
         categoryList.add(new Category("Self Improvment", R.drawable.self_improvement));
-        CategoryAdapter categoryAdapter = new CategoryAdapter(categoryList);
+
+        // Add click listener for category navigation
+        CategoryAdapter categoryAdapter = new CategoryAdapter(categoryList, category -> {
+            Intent intent = new Intent(HomeActivity.this, CategoryBooksActivity.class);
+            intent.putExtra("category_name", category.getName());
+            startActivity(intent);
+        });
         categoryRecyclerView.setAdapter(categoryAdapter);
+    }
+
+    private void setupBannerSlider() {
+        try {
+            bannerImageView = findViewById(R.id.promotional_banner);
+
+            if (bannerImageView == null) {
+                return;
+            }
+
+            // Set initial image
+            bannerImageView.setImageResource(bannerImages[0]);
+
+            // Auto-change every 5 seconds
+            bannerHandler = new Handler(Looper.getMainLooper());
+            bannerRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (bannerImageView != null) {
+                        currentBannerIndex = (currentBannerIndex + 1) % bannerImages.length;
+                        bannerImageView.setImageResource(bannerImages[currentBannerIndex]);
+                        bannerHandler.postDelayed(this, BANNER_DELAY);
+                    }
+                }
+            };
+            bannerHandler.postDelayed(bannerRunnable, BANNER_DELAY);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initializeBookRecyclerViews() {
@@ -251,7 +301,7 @@ public class HomeActivity extends BaseActivity {
         popularRecyclerView.setAdapter(popularAdapter);
 
         // Nearby books RecyclerView
-        RecyclerView nearbyRecyclerView = findViewById(R.id.nearby_recycler_view);
+        nearbyRecyclerView = findViewById(R.id.nearby_recycler_view);
         nearbyRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         nearbyAdapter = new FirebaseBookAdapter(nearbyBooks);
         nearbyRecyclerView.setAdapter(nearbyAdapter);
@@ -278,19 +328,23 @@ public class HomeActivity extends BaseActivity {
         });
 
         // Fetch latest books (ordered by timestamp, descending)
-        Query latestQuery = booksRef.orderByChild("timestamp").limitToLast(10);
+        Query latestQuery = booksRef.orderByChild("timestamp").limitToLast(20);
         latestQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 latestBooks.clear();
                 for (DataSnapshot bookSnapshot : snapshot.getChildren()) {
                     Book book = bookSnapshot.getValue(Book.class);
-                    if (book != null) {
+                    // Filter out sold books
+                    if (book != null && !book.isSold()) {
                         latestBooks.add(book);
                     }
                 }
-                // Reverse to show newest first
+                // Reverse to show newest first and limit to 10
                 Collections.reverse(latestBooks);
+                if (latestBooks.size() > 10) {
+                    latestBooks = new ArrayList<>(latestBooks.subList(0, 10));
+                }
 
                 // Only update if not in search mode
                 if (searchEditText.getText().toString().isEmpty()) {
@@ -312,7 +366,8 @@ public class HomeActivity extends BaseActivity {
                 popularBooks.clear();
                 for (DataSnapshot bookSnapshot : snapshot.getChildren()) {
                     Book book = bookSnapshot.getValue(Book.class);
-                    if (book != null) {
+                    // Filter out sold books
+                    if (book != null && !book.isSold()) {
                         popularBooks.add(book);
                     }
                 }
@@ -331,56 +386,74 @@ public class HomeActivity extends BaseActivity {
             }
         });
 
-        // Fetch nearby books - sorted by distance to user
-        booksRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                nearbyBooks.clear();
-                List<Book> allBooksWithLocation = new ArrayList<>();
+        // Fetch nearby books
+        fetchNearbyBooks();
+    }
 
-                for (DataSnapshot bookSnapshot : snapshot.getChildren()) {
-                    Book book = bookSnapshot.getValue(Book.class);
-                    if (book != null && book.getLatitude() != 0 && book.getLongitude() != 0) {
-                        allBooksWithLocation.add(book);
+    /**
+     * Fetch nearby books - completely fresh each time.
+     * Filters out sold books and sorts by distance.
+     */
+    private void fetchNearbyBooks() {
+        booksRef.get().addOnSuccessListener(snapshot -> {
+            // Create fresh list
+            ArrayList<Book> nearbyList = new ArrayList<>();
+
+            for (DataSnapshot bookSnapshot : snapshot.getChildren()) {
+                Book book = bookSnapshot.getValue(Book.class);
+                if (book != null) {
+                    book.setId(bookSnapshot.getKey());
+
+                    // ONLY add if NOT sold AND has valid location
+                    boolean hasLocation = book.getLatitude() != 0 && book.getLongitude() != 0;
+                    boolean notSold = !book.isSold();
+
+                    if (notSold && hasLocation) {
+                        nearbyList.add(book);
                     }
                 }
-
-                // Sort by distance if user location is available
-                if (userLatitude != 0 && userLongitude != 0) {
-                    Collections.sort(allBooksWithLocation, (b1, b2) -> {
-                        double dist1 = calculateDistance(userLatitude, userLongitude, b1.getLatitude(),
-                                b1.getLongitude());
-                        double dist2 = calculateDistance(userLatitude, userLongitude, b2.getLatitude(),
-                                b2.getLongitude());
-                        return Double.compare(dist1, dist2);
-                    });
-                }
-
-                // Take top 10 nearest
-                int limit = Math.min(10, allBooksWithLocation.size());
-                nearbyBooks.addAll(allBooksWithLocation.subList(0, limit));
-                nearbyAdapter.updateBooks(nearbyBooks);
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(HomeActivity.this, "Gagal memuat buku terdekat", Toast.LENGTH_SHORT).show();
+            // Sort by distance if user location is available
+            if (userLatitude != 0 && userLongitude != 0) {
+                nearbyList.sort((b1, b2) -> {
+                    double dist1 = calculateDistance(userLatitude, userLongitude, b1.getLatitude(), b1.getLongitude());
+                    double dist2 = calculateDistance(userLatitude, userLongitude, b2.getLatitude(), b2.getLongitude());
+                    return Double.compare(dist1, dist2);
+                });
             }
+
+            // Take top 10
+            if (nearbyList.size() > 10) {
+                nearbyList = new ArrayList<>(nearbyList.subList(0, 10));
+            }
+
+            // Create brand new adapter and set it
+            FirebaseBookAdapter newAdapter = new FirebaseBookAdapter(nearbyList);
+            nearbyRecyclerView.setAdapter(newAdapter);
+
+        }).addOnFailureListener(e -> {
+            Toast.makeText(HomeActivity.this, "Gagal memuat buku terdekat", Toast.LENGTH_SHORT).show();
         });
     }
 
     private void fetchAllBooksForPopular() {
-        booksRef.limitToLast(10).addListenerForSingleValueEvent(new ValueEventListener() {
+        booksRef.limitToLast(20).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 popularBooks.clear();
                 for (DataSnapshot bookSnapshot : snapshot.getChildren()) {
                     Book book = bookSnapshot.getValue(Book.class);
-                    if (book != null) {
+                    // Filter out sold books
+                    if (book != null && !book.isSold()) {
                         popularBooks.add(book);
                     }
                 }
                 Collections.reverse(popularBooks);
+                // Limit to 10
+                if (popularBooks.size() > 10) {
+                    popularBooks = new ArrayList<>(popularBooks.subList(0, 10));
+                }
                 popularAdapter.updateBooks(popularBooks);
             }
 
@@ -496,40 +569,21 @@ public class HomeActivity extends BaseActivity {
         return R * c;
     }
 
-    private void fetchNearbyBooks() {
-        booksRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                nearbyBooks.clear();
-                List<Book> allBooksWithLocation = new ArrayList<>();
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Stop banner auto-scroll when activity is paused
+        if (bannerHandler != null && bannerRunnable != null) {
+            bannerHandler.removeCallbacks(bannerRunnable);
+        }
+    }
 
-                for (DataSnapshot bookSnapshot : snapshot.getChildren()) {
-                    Book book = bookSnapshot.getValue(Book.class);
-                    if (book != null && book.getLatitude() != 0 && book.getLongitude() != 0) {
-                        allBooksWithLocation.add(book);
-                    }
-                }
-
-                // Sort by distance
-                if (userLatitude != 0 && userLongitude != 0) {
-                    Collections.sort(allBooksWithLocation, (b1, b2) -> {
-                        double dist1 = calculateDistance(userLatitude, userLongitude, b1.getLatitude(),
-                                b1.getLongitude());
-                        double dist2 = calculateDistance(userLatitude, userLongitude, b2.getLatitude(),
-                                b2.getLongitude());
-                        return Double.compare(dist1, dist2);
-                    });
-                }
-
-                int limit = Math.min(10, allBooksWithLocation.size());
-                nearbyBooks.addAll(allBooksWithLocation.subList(0, limit));
-                nearbyAdapter.updateBooks(nearbyBooks);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Silent fail
-            }
-        });
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Resume banner auto-scroll when activity is resumed
+        if (bannerHandler != null && bannerRunnable != null) {
+            bannerHandler.postDelayed(bannerRunnable, BANNER_DELAY);
+        }
     }
 }

@@ -83,6 +83,7 @@
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
                 android:contentDescription="Promotional Banner"
+                android:scaleType="fitXY"
                 android:src="@drawable/iklan"
                 app:layout_constraintTop_toBottomOf="@+id/header_section"
                 app:layout_constraintStart_toStartOf="parent"

@@ -79,6 +79,11 @@ public class ProfileActivity extends BaseActivity {
             startActivity(intent);
         });
 
+        binding.myReviewsItem.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, MyReviewsActivity.class);
+            startActivity(intent);
+        });
+
         binding.logoutButton.setOnClickListener(v -> showLogoutConfirmDialog());
 
         fetchLocation();
@@ -231,9 +236,8 @@ public class ProfileActivity extends BaseActivity {
                                 List<Address> addresses = geocoder.getFromLocation(location.getLatitude(),
                                         location.getLongitude(), 1);
                                 if (addresses != null && !addresses.isEmpty()) {
-                                    String address = addresses.get(0).getSubLocality();
                                     String city = addresses.get(0).getLocality();
-                                    binding.userLocation.setText(address + ", " + city);
+                                    binding.userLocation.setText(city != null ? city : "Lokasi tidak ditemukan");
                                 } else {
                                     binding.userLocation.setText("Lokasi tidak ditemukan");
                                 }

@@ -126,8 +126,14 @@ public class FirebaseBookAdapter extends RecyclerView.Adapter<FirebaseBookAdapte
             holder.price.setText(formattedPrice);
         }
 
-        // Set location
-        holder.location.setText(book.getLocation());
+        // Set location - show only city (first part)
+        String fullLocation = book.getLocation();
+        if (fullLocation != null && !fullLocation.isEmpty()) {
+            String[] parts = fullLocation.split(",");
+            holder.location.setText(parts[0].trim());
+        } else {
+            holder.location.setText("");
+        }
 
         // Load cover image from URL using Glide
         if (book.getFrontImageUrl() != null && !book.getFrontImageUrl().isEmpty()) {
@@ -144,6 +150,15 @@ public class FirebaseBookAdapter extends RecyclerView.Adapter<FirebaseBookAdapte
             holder.bestProductBanner.setVisibility(View.VISIBLE);
         } else {
             holder.bestProductBanner.setVisibility(View.GONE);
+        }
+
+        // Show/hide sold overlay and badge
+        if (book.isSold()) {
+            holder.soldOverlay.setVisibility(View.VISIBLE);
+            holder.soldBadge.setVisibility(View.VISIBLE);
+        } else {
+            holder.soldOverlay.setVisibility(View.GONE);
+            holder.soldBadge.setVisibility(View.GONE);
         }
 
         // Handle favorite/wishlist icon
@@ -188,9 +203,10 @@ public class FirebaseBookAdapter extends RecyclerView.Adapter<FirebaseBookAdapte
     }
 
     static class BookViewHolder extends RecyclerView.ViewHolder {
-        TextView title, description, price, location;
+        TextView title, description, price, location, soldBadge;
         ImageView cover, favoriteIcon;
         LinearLayout bestProductBanner;
+        View soldOverlay;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -201,6 +217,8 @@ public class FirebaseBookAdapter extends RecyclerView.Adapter<FirebaseBookAdapte
             cover = itemView.findViewById(R.id.book_cover);
             favoriteIcon = itemView.findViewById(R.id.favorite_icon);
             bestProductBanner = itemView.findViewById(R.id.best_product_banner);
+            soldOverlay = itemView.findViewById(R.id.sold_overlay);
+            soldBadge = itemView.findViewById(R.id.sold_badge);
         }
     }
 }

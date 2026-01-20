@@ -120,6 +120,18 @@
             android:name=".SellerProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
+            android:name=".MyReviewsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
+            android:name=".CategoryBooksActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
+            android:name=".MyReportsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
 
         <activity
             android:name="com.canhub.cropper.CropImageActivity"

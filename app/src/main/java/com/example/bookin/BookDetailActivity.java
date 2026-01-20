@@ -165,27 +165,27 @@ public class BookDetailActivity extends AppCompatActivity {
                 Toast.makeText(this, "Tulis pesan terlebih dahulu", Toast.LENGTH_SHORT).show();
                 return;
             }
-            
-            String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null 
-                    ? FirebaseAuth.getInstance().getCurrentUser().getUid() 
+
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null
+                    ? FirebaseAuth.getInstance().getCurrentUser().getUid()
                     : null;
-            
+
             if (currentUserId == null) {
                 Toast.makeText(this, "Silakan login terlebih dahulu", Toast.LENGTH_SHORT).show();
                 return;
             }
-            
+
             if (currentBook == null || currentBook.getUserId() == null) {
                 Toast.makeText(this, "Data penjual tidak tersedia", Toast.LENGTH_SHORT).show();
                 return;
             }
-            
+
             // Don't allow chatting with yourself
             if (currentUserId.equals(currentBook.getUserId())) {
                 Toast.makeText(this, "Anda tidak bisa mengirim pesan ke diri sendiri", Toast.LENGTH_SHORT).show();
                 return;
             }
-            
+
             Intent chatIntent = new Intent(this, ChatRoomActivity.class);
             chatIntent.putExtra(ChatRoomActivity.EXTRA_OTHER_USER_ID, currentBook.getUserId());
             chatIntent.putExtra(ChatRoomActivity.EXTRA_OTHER_USER_NAME, currentBook.getUserName());
@@ -448,6 +448,24 @@ public class BookDetailActivity extends AppCompatActivity {
         dialogView.findViewById(R.id.report_confirm_button).setOnClickListener(v -> {
             // 1. Mark this user as having reported this AD
             booksRef.child(bookId).child("reporters").child(reporterId).setValue(true);
+
+            // 1b. Save report to userReports for tracking
+            DatabaseReference userReportsRef = FirebaseDatabase.getInstance().getReference("userReports");
+            String reportId = userReportsRef.child(reporterId).push().getKey();
+            if (reportId != null && currentBook != null) {
+                java.util.Map<String, Object> reportData = new java.util.HashMap<>();
+                reportData.put("bookId", bookId);
+                reportData.put("bookTitle", currentBook.getTitle());
+                reportData.put("bookImage", currentBook.getFrontImageUrl() != null
+                        ? currentBook.getFrontImageUrl()
+                        : "");
+                reportData.put("sellerId", sellerId);
+                reportData.put("sellerName", currentBook.getUserName());
+                reportData.put("reason", "Konten tidak pantas");
+                reportData.put("timestamp", System.currentTimeMillis());
+                reportData.put("status", "pending");
+                userReportsRef.child(reporterId).child(reportId).setValue(reportData);
+            }
 
             // 2. Get and increment ad report count
             booksRef.child(bookId).child("reportCount").get()

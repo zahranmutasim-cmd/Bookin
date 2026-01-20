@@ -29,7 +29,9 @@ public class MyAdsAdapter extends RecyclerView.Adapter<MyAdsAdapter.MyAdViewHold
 
     public interface OnAdActionListener {
         void onSoldStatusClick(Book book, int position);
+
         void onDeleteClick(Book book, int position);
+
         void onViewClick(Book book);
     }
 
@@ -87,6 +89,15 @@ public class MyAdsAdapter extends RecyclerView.Adapter<MyAdsAdapter.MyAdViewHold
         // Set status tombol Terjual/Belum Terjual
         updateSoldButton(holder.btnSoldStatus, book.isSold());
 
+        // Show/hide sold overlay and badge
+        if (book.isSold()) {
+            holder.soldOverlay.setVisibility(View.VISIBLE);
+            holder.soldBadge.setVisibility(View.VISIBLE);
+        } else {
+            holder.soldOverlay.setVisibility(View.GONE);
+            holder.soldBadge.setVisibility(View.GONE);
+        }
+
         // Click listeners
         holder.btnSoldStatus.setOnClickListener(v -> {
             if (listener != null) {
@@ -138,7 +149,8 @@ public class MyAdsAdapter extends RecyclerView.Adapter<MyAdsAdapter.MyAdViewHold
     }
 
     private String formatDate(long timestamp) {
-        if (timestamp == 0) return "-";
+        if (timestamp == 0)
+            return "-";
         SimpleDateFormat sdf = new SimpleDateFormat("d MMM yyyy", new Locale("id", "ID"));
         return sdf.format(new Date(timestamp));
     }
@@ -151,8 +163,9 @@ public class MyAdsAdapter extends RecyclerView.Adapter<MyAdsAdapter.MyAdViewHold
     }
 
     static class MyAdViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDate, tvTitle, tvLocation, tvPrice, tvFavoriteCount;
+        TextView tvDate, tvTitle, tvLocation, tvPrice, tvFavoriteCount, soldBadge;
         ImageView ivBookImage;
+        View soldOverlay;
         MaterialButton btnSoldStatus, btnDeleteAd, btnViewAd;
 
         MyAdViewHolder(@NonNull View itemView) {
@@ -163,6 +176,8 @@ public class MyAdsAdapter extends RecyclerView.Adapter<MyAdsAdapter.MyAdViewHold
             tvPrice = itemView.findViewById(R.id.tv_book_price);
             tvFavoriteCount = itemView.findViewById(R.id.tv_favorite_count);
             ivBookImage = itemView.findViewById(R.id.iv_book_image);
+            soldOverlay = itemView.findViewById(R.id.sold_overlay);
+            soldBadge = itemView.findViewById(R.id.sold_badge);
             btnSoldStatus = itemView.findViewById(R.id.btn_sold_status);
             btnDeleteAd = itemView.findViewById(R.id.btn_delete_ad);
             btnViewAd = itemView.findViewById(R.id.btn_view_ad);
