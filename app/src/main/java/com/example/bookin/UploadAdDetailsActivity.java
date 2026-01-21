@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
@@ -134,7 +134,7 @@ public class UploadAdDetailsActivity extends AppCompatActivity {
         categoryList.add(new Category("Buku Gratis", R.drawable.buku_gratis_icon));
 
         categoryAdapter = new CategoryAdapterWithSelection(categoryList);
-        tipeRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        tipeRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         tipeRecyclerView.setAdapter(categoryAdapter);
     }
 

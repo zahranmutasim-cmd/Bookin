@@ -38,7 +38,7 @@ public class CategoryAdapterWithSelection
     @NonNull
     @Override
     public CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_category, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_category_selection, parent, false);
         return new CategoryViewHolder(view);
     }
 
@@ -48,13 +48,15 @@ public class CategoryAdapterWithSelection
         holder.name.setText(category.getName());
         holder.icon.setImageResource(category.getIconResource());
 
-        // Highlight selected item - only for this adapter instance
+        // Highlight selected item with card background color change
         if (position == selectedPosition) {
             holder.itemView.setSelected(true);
-            holder.itemView.setAlpha(1.0f);
+            holder.card.setCardBackgroundColor(holder.itemView.getContext().getResources().getColor(R.color.colorPrimaryLight));
+            holder.card.setCardElevation(8f);
         } else {
             holder.itemView.setSelected(false);
-            holder.itemView.setAlpha(0.6f);
+            holder.card.setCardBackgroundColor(holder.itemView.getContext().getResources().getColor(R.color.white));
+            holder.card.setCardElevation(4f);
         }
 
         holder.itemView.setOnClickListener(v -> {
@@ -85,11 +87,13 @@ public class CategoryAdapterWithSelection
     static class CategoryViewHolder extends RecyclerView.ViewHolder {
         TextView name;
         ImageView icon;
+        androidx.cardview.widget.CardView card;
 
         public CategoryViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.category_name);
             icon = itemView.findViewById(R.id.category_icon);
+            card = itemView.findViewById(R.id.category_card);
         }
     }
 }

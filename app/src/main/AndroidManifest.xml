@@ -132,6 +132,10 @@
             android:name=".MyReportsActivity"
             android:exported="false"
             android:theme="@style/Theme.Bookin.NoActionBar" />
+        <activity
+            android:name=".AboutActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookin.NoActionBar" />
 
         <activity
             android:name="com.canhub.cropper.CropImageActivity"

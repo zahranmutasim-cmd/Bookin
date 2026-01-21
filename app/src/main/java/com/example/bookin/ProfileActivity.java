@@ -84,6 +84,11 @@ public class ProfileActivity extends BaseActivity {
             startActivity(intent);
         });
 
+        binding.aboutBookinItem.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, AboutActivity.class);
+            startActivity(intent);
+        });
+
         binding.logoutButton.setOnClickListener(v -> showLogoutConfirmDialog());
 
         fetchLocation();
